@@ -55,55 +55,79 @@ public class GoBoard {
 	public boolean put(Colour colour, int pos){//this is used to put stones onto the board
 		if(pos<Public.array_size&&pos>Public.board_size){
 			if(stoneNum<19*19&&board[pos]==Colour.EMPTY){
-				board[pos]=colour;
-				strings.makeset(pos,colour);
-				
-				if(board[n(pos)]==Colour.EMPTY){
-					strings.addLiberty(pos,n(pos));
+					if(check(pos, colour)){
+					board[pos]=colour;
+					strings.makeset(pos,colour);
+					
+					if(board[n(pos)]==Colour.EMPTY){
+						strings.addLiberty(pos,n(pos));
+					}
+					else{
+						strings.union(pos,n(pos));
+					}
+					
+					if(board[e(pos)]==Colour.EMPTY){
+						strings.addLiberty(pos,e(pos));
+					}
+					else{
+						strings.union(pos,e(pos));
+					}
+					
+					if(board[s(pos)]==Colour.EMPTY){
+						strings.addLiberty(pos,s(pos));
+					}
+					else{
+						strings.union(pos,s(pos));
+					}
+					
+					if(board[w(pos)]==Colour.EMPTY){
+						strings.addLiberty(pos,w(pos));
+					}
+					else{
+						strings.union(pos,w(pos));
+					}
+					
+					if(strings.noLiberties(n(pos))){removeString(n(pos));}
+					if(strings.noLiberties(e(pos))){removeString(e(pos));}
+					if(strings.noLiberties(s(pos))){removeString(s(pos));}
+					if(strings.noLiberties(w(pos))){removeString(w(pos));}
+					
+					stoneNum++;
+					notifyListeners();
+					return true;
 				}
 				else{
-					strings.union(pos,n(pos));
+					return false;
 				}
-				
-				if(board[e(pos)]==Colour.EMPTY){
-					strings.addLiberty(pos,e(pos));
-				}
-				else{
-					strings.union(pos,e(pos));
-				}
-				
-				if(board[s(pos)]==Colour.EMPTY){
-					strings.addLiberty(pos,s(pos));
-				}
-				else{
-					strings.union(pos,s(pos));
-				}
-				
-				if(board[w(pos)]==Colour.EMPTY){
-					strings.addLiberty(pos,w(pos));
-				}
-				else{
-					strings.union(pos,w(pos));
-				}
-				
-				if(strings.noLiberties(n(pos))){removeString(n(pos));}
-				if(strings.noLiberties(e(pos))){removeString(e(pos));}
-				if(strings.noLiberties(s(pos))){removeString(s(pos));}
-				if(strings.noLiberties(w(pos))){removeString(w(pos));}
-				
-				stoneNum++;
-				notifyListeners();
-				return true;
-			}
-			else{
-				return false;
 			}
 		}
 		else{
 			return false;
 		}
+		return false;
 	}
 
+	private boolean check(int pos,Colour c) {
+		if(board[n(pos)]==Colour.EMPTY||board[e(pos)]==Colour.EMPTY||board[s(pos)]==Colour.EMPTY||board[w(pos)]==Colour.EMPTY) return true;
+		boolean hasNeighbourWithLiberties=false;boolean capturesNeighbour = false;
+		if(board[n(pos)]!=Colour.GREY){
+			hasNeighbourWithLiberties = board[n(pos)]==c&&strings.getLiberties(n(pos)).size()>1;
+			capturesNeighbour = board[n(pos)]!=c&&strings.getLiberties(n(pos)).size()==1;
+		}
+		if(board[e(pos)]!=Colour.GREY){
+			hasNeighbourWithLiberties = hasNeighbourWithLiberties || board[e(pos)]==c&&strings.getLiberties(e(pos)).size()>1;
+			capturesNeighbour = capturesNeighbour||board[e(pos)]!=c&&strings.getLiberties(e(pos)).size()==1;
+		}	
+		if(board[s(pos)]!=Colour.GREY){
+			hasNeighbourWithLiberties = hasNeighbourWithLiberties || board[s(pos)]==c&&strings.getLiberties(s(pos)).size()>1;
+			capturesNeighbour = capturesNeighbour||board[s(pos)]!=c&&strings.getLiberties(s(pos)).size()==1;
+		}
+		if(board[w(pos)]!=Colour.GREY){
+			hasNeighbourWithLiberties = hasNeighbourWithLiberties || board[w(pos)]==c&&strings.getLiberties(w(pos)).size()>1;
+			capturesNeighbour = capturesNeighbour||board[w(pos)]!=c&&strings.getLiberties(w(pos)).size()==1;
+		}
+		return capturesNeighbour||hasNeighbourWithLiberties;
+	}
 	private void removeString(int pos) {
 		//removes the string at pos
 		Colour colour = board[pos];

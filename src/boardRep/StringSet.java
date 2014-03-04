@@ -85,7 +85,8 @@ public class StringSet {
 		}
 		public Liberties getLiberties(int x){
 			Node xNode = intFind(x);
-			return xNode.liberties;
+			if(xNode!=null) return xNode.liberties;
+			return null;
 		}
 		public void remove(int pos) {
 			nodes[pos]=null;

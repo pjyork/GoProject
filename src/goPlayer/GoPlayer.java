@@ -111,7 +111,7 @@ public class GoPlayer extends JFrame{
 		goPlayer.setLocation(100, 100);
 		goPlayer.setSize(675,675);
 		goPlayer.setVisible(true);
-		playRandom(board);
+		//playRandom(board);
 		//playDet(board);
 		
 		

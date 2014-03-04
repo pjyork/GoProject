@@ -26,12 +26,41 @@ public class BoardView extends JPanel{
 	private final int size = 19; //determines the dimensions of the board
 	protected final GoBoard goBoard;
 	private final int border = 20;
+	private GoMouseListener mouse;
+	private int colour = 0;
 	
 	public BoardView(GoPlayer goPlayer,GoBoard goBoard){
+		
 		this.goPlayer=goPlayer;
 		this.goBoard=goBoard;
+		mouse = new GoMouseListener(this);
+		addMouseListener(mouse);
 	}
 	
+	public void place(Point pos){
+		int arrayPos = getArrayPos(pos);
+		
+		if(colour==0){	
+			if(goBoard.put(Colour.BLACK,arrayPos))colour = ++colour%2;
+		}
+		else{
+			if(goBoard.put(Colour.WHITE,arrayPos))colour = ++colour%2;
+		}
+	}
+	
+	private int getArrayPos(Point pos) {
+		int height = getHeight();
+		int width = getWidth();
+		int x = pos.x - border;
+		int y = pos.y - border;
+		int horistep = (width - (2*border))/18;
+		int vertstep = (height - (2*border))/18;
+		x = x/horistep;
+		y = y/vertstep;
+		int arrayPos = 21 + x + y*20;
+		return arrayPos;
+	}
+
 	public void update(){
 		repaint();
 	}
