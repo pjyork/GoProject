@@ -31,6 +31,11 @@ public class BoardView extends JPanel{
 		this.goPlayer=goPlayer;
 		this.goBoard=goBoard;
 	}
+	
+	public void update(){
+		repaint();
+	}
+	
 	public void paintComponent(Graphics g){
 		Graphics2D g2d = (Graphics2D)g; 
 		
@@ -68,7 +73,7 @@ public class BoardView extends JPanel{
 				else if(c==Colour.BLACK){
 					g2d.setColor(Color.WHITE);
 					g2d.drawOval(border+(horistep*i)-horioffset, border+(vertstep*j)-vertoffset, horistep/2, vertstep/2);
-					g2d.setColor(Color.BLACK);
+					g2d.setColor(Color.RED);
 					g2d.fillOval(border+(horistep*i)-horioffset, border+(vertstep*j)-vertoffset, horistep/2, vertstep/2);
 				}
 			}
