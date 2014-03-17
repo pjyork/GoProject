@@ -51,13 +51,15 @@ public class GoPlayer extends JFrame{
 	private static void playDet(GoBoard board){
 		int i =0;
 		int j =0;
-		while(!board.isFull()){
+		int playcount=0;
+		while(!board.isFull()&&playcount<10000){
 			try {
-				Thread.sleep(250);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			playcount++;
 			if(i==1){
 			if(board.put(Colour.WHITE, j)){
 				i = ++i%2;
@@ -83,13 +85,15 @@ public class GoPlayer extends JFrame{
 	private static void playRandom(GoBoard board){
 		int i =0;
 		int j =0;
-		while(!board.isFull()){
+		int playcount=0;
+		while(!board.isFull()&&playcount<10000){
 			try {
-				Thread.sleep(250);
+				Thread.sleep(0);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			playcount++;
 			if(i==1){
 			if(board.put(Colour.WHITE, (int) (Math.random()*(20*21)))){
 				i = ++i%2;
@@ -111,10 +115,12 @@ public class GoPlayer extends JFrame{
 		goPlayer.setLocation(100, 100);
 		goPlayer.setSize(675,675);
 		goPlayer.setVisible(true);
-		//playRandom(board);
+		playRandom(board);
 		//playDet(board);
-		
-		
+		Colour winner = board.scoreBoard();
+		if(winner==Colour.WHITE) System.out.println("white wins");
+		else if(winner==Colour.BLACK) System.out.println("black wins");
+		else System.out.println("Draw");
 		
 	}
 }

@@ -13,7 +13,7 @@ public class GoBoard {
 	private int stoneNum;
 	private LinkedList<BoardListener> listeners;
 
-	int board_ko_pos; //this stores where on the board a play will return the board to a previous board state
+	private int board_ko_pos; //this stores where on the board a play will return the board to a previous board state
 					  // if no such position exists it will be 0 (which is -1,-1) i.e. in the border
 	
 	private int up = board_size+1; //the amount to +- to go up or down on the board
@@ -34,7 +34,7 @@ public class GoBoard {
 	
 	public GoBoard(){
 		for(int i = 0;i<Public.array_size;i++){
-			if(i%(Public.board_size+1)==0||i<Public.board_size+1){
+			if(i%(Public.board_size+1)==0||i<Public.board_size+1||i>Public.board_size*(Public.board_size+2)){
 				board[i]=Colour.GREY;
 			}
 			else if(i%2==0){
@@ -56,45 +56,56 @@ public class GoBoard {
 		if(pos<Public.array_size&&pos>Public.board_size){
 			if(stoneNum<19*19&&board[pos]==Colour.EMPTY){
 					if(check(pos, colour)){
-					board[pos]=colour;
-					strings.makeset(pos,colour);
-					
-					if(board[n(pos)]==Colour.EMPTY){
-						strings.addLiberty(pos,n(pos));
-					}
-					else{
-						strings.union(pos,n(pos));
-					}
-					
-					if(board[e(pos)]==Colour.EMPTY){
-						strings.addLiberty(pos,e(pos));
-					}
-					else{
-						strings.union(pos,e(pos));
-					}
-					
-					if(board[s(pos)]==Colour.EMPTY){
-						strings.addLiberty(pos,s(pos));
-					}
-					else{
-						strings.union(pos,s(pos));
-					}
-					
-					if(board[w(pos)]==Colour.EMPTY){
-						strings.addLiberty(pos,w(pos));
-					}
-					else{
-						strings.union(pos,w(pos));
-					}
-					
-					if(strings.noLiberties(n(pos))){removeString(n(pos));}
-					if(strings.noLiberties(e(pos))){removeString(e(pos));}
-					if(strings.noLiberties(s(pos))){removeString(s(pos));}
-					if(strings.noLiberties(w(pos))){removeString(w(pos));}
-					
-					stoneNum++;
-					notifyListeners();
-					return true;
+						board[pos]=colour;
+						strings.makeset(pos,colour);
+						
+						if(board[n(pos)]==Colour.EMPTY){
+							strings.addLiberty(pos,n(pos));
+						}
+						else{
+							strings.union(pos,n(pos));
+						}
+						
+						if(board[e(pos)]==Colour.EMPTY){
+							strings.addLiberty(pos,e(pos));
+						}
+						else{
+							strings.union(pos,e(pos));
+						}
+						
+						if(board[s(pos)]==Colour.EMPTY){
+							strings.addLiberty(pos,s(pos));
+						}
+						else{
+							strings.union(pos,s(pos));
+						}	
+						
+						if(board[w(pos)]==Colour.EMPTY){
+							strings.addLiberty(pos,w(pos));
+						}
+						else{
+							strings.union(pos,w(pos));
+						}
+						int rN=0;
+						int rE=0;
+						int rS=0;
+						int rW=0;
+				
+						if(strings.noLiberties(n(pos))){rN=removeString(n(pos));}
+						if(strings.noLiberties(e(pos))){rE=removeString(e(pos));}
+						if(strings.noLiberties(s(pos))){rS=removeString(s(pos));}
+						if(strings.noLiberties(w(pos))){rW=removeString(w(pos));}
+						
+						if(rN+rE+rS+rW==1){
+							if(rN==1) board_ko_pos =n(pos);
+							else if(rE==1) board_ko_pos =e(pos);
+							else if(rS==1) board_ko_pos =s(pos);
+							else board_ko_pos =w(pos);
+						}
+						else board_ko_pos =0;
+						stoneNum++;
+						notifyListeners();
+						return true;
 				}
 				else{
 					return false;
@@ -108,6 +119,7 @@ public class GoBoard {
 	}
 
 	private boolean check(int pos,Colour c) {
+		if(pos==board_ko_pos) return false;
 		if(board[n(pos)]==Colour.EMPTY||board[e(pos)]==Colour.EMPTY||board[s(pos)]==Colour.EMPTY||board[w(pos)]==Colour.EMPTY) return true;
 		boolean hasNeighbourWithLiberties=false;boolean capturesNeighbour = false;
 		if(board[n(pos)]!=Colour.GREY){
@@ -128,28 +140,30 @@ public class GoBoard {
 		}
 		return capturesNeighbour||hasNeighbourWithLiberties;
 	}
-	private void removeString(int pos) {
+	private int removeString(int pos) {
 		//removes the string at pos
 		Colour colour = board[pos];
+		int removed = 1;
 		board[pos]=Colour.EMPTY;
 		stoneNum--;
 		strings.remove(pos);
 		if(n(pos)<Public.array_size&&n(pos)>=0){
-			if(board[n(pos)]==colour){removeString(n(pos));}
+			if(board[n(pos)]==colour){removed+=removeString(n(pos));}
 			else{strings.addLiberty(n(pos), pos);}
 		}
 		if(e(pos)<Public.array_size&&e(pos)>=0){
-			if(board[e(pos)]==colour){removeString(e(pos));}
+			if(board[e(pos)]==colour){removed+=removeString(e(pos));}
 			else{strings.addLiberty(e(pos), pos);}
 		}
 		if(s(pos)<Public.array_size&&s(pos)>=0){
-			if(board[s(pos)]==colour){removeString(s(pos));}
+			if(board[s(pos)]==colour){removed+=removeString(s(pos));}
 			else{strings.addLiberty(s(pos), pos);}
 		}
 		if(w(pos)<Public.array_size&&w(pos)>=0){
-			if(board[w(pos)]==colour){removeString(w(pos));}
+			if(board[w(pos)]==colour){removed+=removeString(w(pos));}
 			else{strings.addLiberty(w(pos), pos);}
 		}
+		return removed;
 	}
 	
 	
@@ -169,5 +183,77 @@ public class GoBoard {
 		for(BoardListener l:listeners){
 			l.boardChanged();
 		}
+	}
+	private Colour territory(int pos){
+		Colour n,e,s,w;
+		n = board[n(pos)];
+		e = board[e(pos)];
+		s = board[s(pos)];
+		w = board[w(pos)];
+		if(n==Colour.EMPTY) n=territoryRec(n(pos),0);
+		if(e==Colour.EMPTY) e=territoryRec(e(pos),1);
+		if(s==Colour.EMPTY) s=territoryRec(s(pos),2);
+		if(w==Colour.EMPTY) w=territoryRec(w(pos),3);
+		
+		if(n==e&&e==s&&s==w){
+			return n;
+		}
+		else{
+			return Colour.GREY;
+		}		
+	}
+	
+	
+	private Colour territoryRec(int pos,int dir){
+		//recursive call of territory. includes a direction so you don't backtrack to empty space
+		//0 has come from south, 1 from west, 2 from north, 3 from east
+		Colour n,e,s,w;
+		n = board[n(pos)];
+		e = board[e(pos)];
+		s = board[s(pos)];
+		w = board[w(pos)];
+		if(n==Colour.EMPTY&&dir!=2) n=territory(n(pos));
+		if(e==Colour.EMPTY&&dir!=3) e=territory(n(pos));
+		if(s==Colour.EMPTY&&dir!=1) s=territory(n(pos));
+		if(w==Colour.EMPTY&&dir!=0) w=territory(n(pos));
+		
+		switch (dir) {
+        case 0:  s=n;
+                 break;
+        case 1:  w=n;
+                 break;
+        case 2:  n=s;
+                 break;
+        case 3:  e=n;
+                 break;
+        default: break;
+    }
+		
+		if(n==e&&e==s&&s==w){
+			return n;
+		}
+		else{
+			return Colour.GREY;
+		}		
+	}
+	
+	public Colour scoreBoard(){
+		int w = 0;
+		int b = 0;
+		for(int i = 0;i<Public.array_size;i++){
+			if(board[i]!=Colour.GREY){
+				if(board[i]==Colour.WHITE)w++;
+				else if(board[i]==Colour.BLACK)b++;
+				else {//board[i] is empty
+					Colour t = territory(i);
+					if(t==Colour.WHITE) w++;
+					else if(t==Colour.BLACK)b++;
+				}
+			}
+		}
+		if(w>b) return Colour.WHITE;
+		else if(w==b) return Colour.GREY;
+		else return Colour.BLACK;
+		
 	}
 }

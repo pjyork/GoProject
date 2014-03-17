@@ -35,17 +35,17 @@ public class StringSet {
 					if(xRep==yRep||xRep.colour!=yRep.colour||yRep==null){ return;}//if x and y are already in the same set, or their colour is different then nothing changes
 					if(xRep.rank>yRep.rank){
 						yRep.parent = xRep;
-						xRep.liberties.union(yRep.liberties);
+						xRep.liberties=xRep.liberties.union(yRep.liberties);
 					}
 					else{
 						if(xRep.rank<yRep.rank){
 							xRep.parent = yRep;
-							xRep.liberties.union(yRep.liberties);
+							yRep.liberties=xRep.liberties.union(yRep.liberties);
 						}
 						else{
 							yRep.parent = xRep;
 							xRep.rank = xRep.rank + 1;
-							xRep.liberties.union(yRep.liberties);
+							xRep.liberties=xRep.liberties.union(yRep.liberties);
 						}
 					}
 				}

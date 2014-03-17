@@ -14,7 +14,7 @@ public class ArrayLiberties implements Liberties {
 		Liberties newLiberties = new ArrayLiberties();
 		int newNum = 0;
 		for(int i=0;i<liberties.length;i++){
-			if(liberties[i]||that.contains(i)){
+			if(this.liberties[i]||that.contains(i)){
 				newLiberties.add(i);
 				newNum++;
 			}

@@ -55,6 +55,8 @@ public class BoardView extends JPanel{
 		int y = pos.y - border;
 		int horistep = (width - (2*border))/18;
 		int vertstep = (height - (2*border))/18;
+		x+=horistep/2;
+		y+=vertstep/2;
 		x = x/horistep;
 		y = y/vertstep;
 		int arrayPos = 21 + x + y*20;
