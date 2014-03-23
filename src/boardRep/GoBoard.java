@@ -118,7 +118,7 @@ public class GoBoard {
 		return false;
 	}
 
-	private boolean check(int pos,Colour c) {
+	public boolean check(int pos,Colour c) {
 		if(pos==board_ko_pos) return false;
 		if(board[n(pos)]==Colour.EMPTY||board[e(pos)]==Colour.EMPTY||board[s(pos)]==Colour.EMPTY||board[w(pos)]==Colour.EMPTY) return true;
 		boolean hasNeighbourWithLiberties=false;boolean capturesNeighbour = false;
