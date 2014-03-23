@@ -24,7 +24,7 @@ import javax.swing.JToolBar;
 import boardRep.BoardListener;
 import boardRep.Colour;
 import boardRep.GoBoard;
-import boardRep.Public;
+import boardRep.Global;
 import boardView.BoardView;
 
 
@@ -76,7 +76,7 @@ public class GoPlayer extends JFrame{
 				}
 			}
 		}
-		j=(j+1)%Public.array_size;
+		j=(j+1)%Global.array_size;
 		
 		
 		}

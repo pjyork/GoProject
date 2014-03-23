@@ -5,7 +5,7 @@ public class ArrayLiberties implements Liberties {
 	public int num;
 	
 	public ArrayLiberties(){
-		liberties = new boolean[Public.array_size];
+		liberties = new boolean[Global.array_size];
 		num=0;
 	}
 	

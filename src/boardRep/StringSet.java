@@ -14,7 +14,7 @@ public class StringSet {
 				this.liberties= new ArrayLiberties();
 			}
 	   };
-	   Node[] nodes = new Node[Public.array_size]; // an array which contains the node, if it exists, for each position on the board
+	   Node[] nodes = new Node[Global.array_size]; // an array which contains the node, if it exists, for each position on the board
 	   
 
 
@@ -27,7 +27,7 @@ public class StringSet {
 		}	
 		public void union(int x, int y){
 			//used when a new stone is added to the board - it is unioned with the positions to the N,S,W,E
-			if(x<Public.array_size&&y<Public.array_size&&y>=0){
+			if(x<Global.array_size&&y<Global.array_size&&y>=0){
 				Node xRep = intFind(x);				
 				Node yRep = intFind(y);
 				if(xRep!=null&&yRep!=null){

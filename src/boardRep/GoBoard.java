@@ -3,11 +3,11 @@ package boardRep;
 import java.util.LinkedList;
 
 public class GoBoard {
-	private int board_size=Public.board_size;
+	private int board_size=Global.board_size;
 	private int max_strings;
 
 //	enum PosState{ grey, white, black, empty};// for a given board position is it black, white, empty or edge (grey)
-	private Colour board[] = new Colour[Public.array_size];//we want a border of 'edge' positions so +2
+	private Colour board[] = new Colour[Global.array_size];//we want a border of 'edge' positions so +2
 												// using a 1D array is useful because using single dimensional coordinates
 												// makes function calls etc. less expensive
 	private int stoneNum;
@@ -23,9 +23,9 @@ public class GoBoard {
 	
 	//these are functions for determining 1D positions from a pos. NB should not be called on border positions
 	private int n(int pos){return pos-up;}//return the 1D coord directly above pos
-	private int s(int pos){return (pos+up)%Public.array_size;}//return the 1D coord directly below pos
+	private int s(int pos){return (pos+up)%Global.array_size;}//return the 1D coord directly below pos
 	private int w(int pos){return pos-1;}//return the 1D coord directly left of pos
-	private int e(int pos){return (pos+1)%Public.array_size;}//return the 1D coord directly right of pos
+	private int e(int pos){return (pos+1)%Global.array_size;}//return the 1D coord directly right of pos
 	private int nw(int pos){return pos-up-1;}//return the 1D coord above and to the left of pos
 	private int ne(int pos){return pos-up+1;}//return the 1D coord above and to the right of pos
 	private int sw(int pos){return pos+up-1;}//return the 1D coord below and to the left of pos
@@ -33,8 +33,8 @@ public class GoBoard {
 	
 	
 	public GoBoard(){
-		for(int i = 0;i<Public.array_size;i++){
-			if(i%(Public.board_size+1)==0||i<Public.board_size+1||i>Public.board_size*(Public.board_size+2)){
+		for(int i = 0;i<Global.array_size;i++){
+			if(i%(Global.board_size+1)==0||i<Global.board_size+1||i>Global.board_size*(Global.board_size+2)){
 				board[i]=Colour.GREY;
 			}
 			else if(i%2==0){
@@ -53,7 +53,7 @@ public class GoBoard {
 	
 	//public functions
 	public boolean put(Colour colour, int pos){//this is used to put stones onto the board
-		if(pos<Public.array_size&&pos>Public.board_size){
+		if(pos<Global.array_size&&pos>Global.board_size){
 			if(stoneNum<19*19&&board[pos]==Colour.EMPTY){
 					if(check(pos, colour)){
 						board[pos]=colour;
@@ -147,19 +147,19 @@ public class GoBoard {
 		board[pos]=Colour.EMPTY;
 		stoneNum--;
 		strings.remove(pos);
-		if(n(pos)<Public.array_size&&n(pos)>=0){
+		if(n(pos)<Global.array_size&&n(pos)>=0){
 			if(board[n(pos)]==colour){removed+=removeString(n(pos));}
 			else{strings.addLiberty(n(pos), pos);}
 		}
-		if(e(pos)<Public.array_size&&e(pos)>=0){
+		if(e(pos)<Global.array_size&&e(pos)>=0){
 			if(board[e(pos)]==colour){removed+=removeString(e(pos));}
 			else{strings.addLiberty(e(pos), pos);}
 		}
-		if(s(pos)<Public.array_size&&s(pos)>=0){
+		if(s(pos)<Global.array_size&&s(pos)>=0){
 			if(board[s(pos)]==colour){removed+=removeString(s(pos));}
 			else{strings.addLiberty(s(pos), pos);}
 		}
-		if(w(pos)<Public.array_size&&w(pos)>=0){
+		if(w(pos)<Global.array_size&&w(pos)>=0){
 			if(board[w(pos)]==colour){removed+=removeString(w(pos));}
 			else{strings.addLiberty(w(pos), pos);}
 		}
@@ -240,7 +240,7 @@ public class GoBoard {
 	public Colour scoreBoard(){
 		int w = 0;
 		int b = 0;
-		for(int i = 0;i<Public.array_size;i++){
+		for(int i = 0;i<Global.array_size;i++){
 			if(board[i]!=Colour.GREY){
 				if(board[i]==Colour.WHITE)w++;
 				else if(board[i]==Colour.BLACK)b++;
