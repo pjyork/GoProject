@@ -1,22 +1,23 @@
 package uctMonteCarlo;
 
-import boardRep.*;
-
 import java.util.List;
 
-public class MyLinkedListTreeNode implements TreeNode {
-	MyLinkedList<Child> children;
+import boardRep.Colour;
+import boardRep.Global;
+import boardRep.GoBoard;
+
+public class SuperTreeNode implements TreeNode {
+	List<Child> children;
 	int numberOfTrials;
 	float expectedWins;
 	GoBoard goBoard;
 	Colour whoseTurn;
 	
-	public MyLinkedListTreeNode(GoBoard gb, Colour whoseTurn){
-		children = new MyLinkedList<Child>();
+	public SuperTreeNode(List<Child> children, GoBoard goBoard, Colour whoseTurn){
+		this.children = children;
 		this.whoseTurn=whoseTurn;
-		goBoard = gb;
+		this.goBoard = goBoard;
 	}
-		
 	
 	@Override
 	public List<Child> getChildren() {
@@ -35,7 +36,7 @@ public class MyLinkedListTreeNode implements TreeNode {
 
 	@Override
 	public boolean isLeaf() {
-		return children.isEmpty();
+		return children.size()==0;
 	}
 
 	@Override
@@ -55,21 +56,18 @@ public class MyLinkedListTreeNode implements TreeNode {
 		playAllChildrenOnce();
 	}
 	private void playAllChildrenOnce(){
-		ListNode<Child> child = children.getHead();
-		while(child.next!=null){
+		for(int i=0;i<children.size();i++){
 			GoBoard newBoard = goBoard.clone();
-			newBoard.put(whoseTurn, child.data.getMove());
+			Child child = children.get(i);
+			newBoard.put(whoseTurn, child.getMove());
 			Colour winner = newBoard.randomPlayout(Global.opponent(whoseTurn));
-			child.data.node.update(winner);
+			child.node.update(winner);
 		}
+		
 	}
-
 
 	@Override
 	public void update(Colour winner) {
-		// TODO Auto-generated method stub
-		
+				
 	}	
-
-
 }

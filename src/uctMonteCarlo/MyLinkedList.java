@@ -7,16 +7,17 @@ import java.util.ListIterator;
 
 public class MyLinkedList<E> implements List<E> {//
 	ListNode<E> head;
+	ListNode<E> tail;
 	int size = 0;
 	@Override
 	public boolean add(E arg0) {
 		if(head!=null){
 			ListNode<E> node = head;
-			while(node.next!=null) node = node.next;
-			node.next = new ListNode<E>(arg0,node,null);
+			tail.next = new ListNode<E>(arg0,node,null);
 		}
 		else{
 			head = new ListNode<E>(arg0,null,null);
+			tail = head;
 		}
 		size++;
 		return true;
@@ -35,6 +36,7 @@ public class MyLinkedList<E> implements List<E> {//
 		}
 		else{
 			head = new ListNode<E>(arg1,null,null);
+			tail = head;
 		}
 		size++;
 		

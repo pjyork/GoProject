@@ -13,6 +13,9 @@ public class StringSet {
 				this.position=value;this.parent=parent;this.rank=rank;this.colour=colour;
 				this.liberties= new ArrayLiberties();
 			}
+			public Node clone(){
+				return new Node(position,parent,rank,colour);
+			}
 	   };
 	   Node[] nodes = new Node[Global.array_size]; // an array which contains the node, if it exists, for each position on the board
 	   
@@ -95,4 +98,13 @@ public class StringSet {
 			Node xNode = intFind(x);
 			if(xNode!=null){xNode.liberties.add(lib);}
 		}
+		public StringSet clone(){
+			StringSet newStrings = new StringSet();
+			for(int i=0;i<Global.array_size;i++){
+				newStrings.nodes[i]=this.nodes[i].clone();
+			}
+			
+			return newStrings;
+		}
+		
 }

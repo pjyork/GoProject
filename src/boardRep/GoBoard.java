@@ -168,7 +168,7 @@ public class GoBoard {
 	
 	
 	public boolean isFull(){
-		return stoneNum==19*19;
+		return stoneNum>=19*19;
 	}
 	private void classifyEyespace(){//working out which areas are eyespaces and who they belong to
 		
@@ -255,5 +255,24 @@ public class GoBoard {
 		else if(w==b) return Colour.GREY;
 		else return Colour.BLACK;
 		
+	}
+	
+	public GoBoard clone(){
+		GoBoard newBoard = new GoBoard();
+		newBoard.stoneNum = this.stoneNum;
+		newBoard.board_ko_pos = this.board_ko_pos;
+		newBoard.strings = this.strings.clone();
+		return newBoard;
+		
+	}
+	public Colour randomPlayout(Colour whoseTurn) {
+		int i = 0;
+		while(i<10000&&!isFull()){
+			if(put(whoseTurn, (int) (Math.random()*(Global.array_size)))){
+				i++;
+				whoseTurn = Global.opponent(whoseTurn);
+			}
+		}
+		return scoreBoard();		
 	}
 }
