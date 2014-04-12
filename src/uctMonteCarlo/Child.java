@@ -15,4 +15,8 @@ public class Child {
 	public int getMove(){
 		return move;
 	}
+	
+	public float getValue(){
+		return node.getValue();
+	}
 }

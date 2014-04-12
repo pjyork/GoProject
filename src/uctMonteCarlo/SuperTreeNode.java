@@ -10,8 +10,17 @@ public class SuperTreeNode implements TreeNode {
 	List<Child> children;
 	int numberOfTrials;
 	float expectedWins;
+	float uncertainty;
 	GoBoard goBoard;
 	Colour whoseTurn;
+	
+	public float getMaxValue(){
+		return (float) Math.min(expectedWins+uncertainty, 1.0);
+	}
+	
+	public float getMinValue(){
+		return (float) Math.max(expectedWins-uncertainty, 0.0);
+	}
 	
 	public SuperTreeNode(List<Child> children, GoBoard goBoard, Colour whoseTurn){
 		this.children = children;
@@ -69,5 +78,40 @@ public class SuperTreeNode implements TreeNode {
 	@Override
 	public void update(Colour winner) {
 				
+	}
+
+	@Override
+	public Colour getWhoseTurn() { 
+		return whoseTurn;
+	}
+
+	@Override
+	public Child getMaxChild() {
+		Child currentMaxChild = children.get(0);
+		float currentMaxValue = currentMaxChild.node.getMaxValue();
+		for(int i=0;i<children.size();i++){
+			Child child = children.get(i);
+			float val = child.node.getMaxValue();
+			if(val >currentMaxValue){
+				currentMaxChild = child;
+				currentMaxValue = val;				
+			}
+		}
+		return currentMaxChild;
+	}
+
+	@Override
+	public Child getMinChild() {
+		Child currentMinChild = children.get(0);
+		float currentMinValue = currentMinChild.node.getMinValue();
+		for(int i=0;i<children.size();i++){
+			Child child = children.get(i);
+			float val = child.node.getMinValue();
+			if(val<currentMinValue){
+				currentMinChild = child;
+				currentMinValue = val;				
+			}
+		}
+		return currentMinChild;
 	}	
 }

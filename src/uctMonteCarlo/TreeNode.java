@@ -11,4 +11,9 @@ public interface TreeNode {
 	boolean isLeaf();//returns whether the node is a leaf (does it have any children yet)
 	void generateChildren();
 	void update(Colour winner);
+	Colour getWhoseTurn();
+	Child getMaxChild();
+	Child getMinChild();
+	float getMaxValue();
+	float getMinValue();
 }

@@ -69,6 +69,27 @@ public class MyLinkedListTreeNode implements TreeNode {
 	public void update(Colour winner) {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	@Override
+	public Colour getWhoseTurn() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public TreeNode getMaxChild() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public TreeNode getMinChild() {
+		// TODO Auto-generated method stub
+		return null;
 	}	
 
 
