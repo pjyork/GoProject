@@ -1,5 +1,9 @@
 package goPlayer;
 import java.awt.BorderLayout;
+
+import uctMonteCarlo.*;
+
+
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
@@ -35,8 +39,10 @@ public class GoPlayer extends JFrame{
 	private static final long serialVersionUID = 1L;
 	protected final GoBoard goBoard;
 	protected final BoardView boardView;
+	protected final UCTSearch searcher;
 	
-	public GoPlayer(GoBoard goBoard){
+	
+	public GoPlayer(GoBoard goBoard, UCTSearch searcher){
 		this.goBoard = goBoard;
 		this.boardView = new BoardView(this, goBoard);
 		
@@ -46,6 +52,7 @@ public class GoPlayer extends JFrame{
 		setContentPane(contentPane);
 		BoardListener bl = new BoardListener(boardView);
 		goBoard.addListener(bl);
+		this.searcher=searcher;
 	}
 	
 	private static void playDet(GoBoard board){
@@ -83,7 +90,7 @@ public class GoPlayer extends JFrame{
 	}
 
 	private static void playRandom(GoBoard board){
-		int i =0;
+		/*int i =0;
 		int j =0;
 		int playcount=0;
 		while(!board.isFull()&&playcount<10000){
@@ -106,21 +113,40 @@ public class GoPlayer extends JFrame{
 		}
 		
 		}
+		*/
+		board.randomPlayout(Colour.BLACK);
+
 	}
+	
+	public void updateSearcher(int move){
+		searcher.makeMove(move);
+	}
+	
+	public void computerPlay(){
+		int move = this.searcher.findAMove(Colour.WHITE,250);
+		goBoard.put(Colour.WHITE, move);
+	}
+	
 	
 	public static void main(String[] args)
 	{	
 		GoBoard board = new GoBoard();
-		GoPlayer goPlayer = new GoPlayer(board);
+		MyLinkedList<Child> children = new MyLinkedList<Child>();
+		TreeNode treeHead = new MyLinkedListTreeNode(children, Colour.BLACK, null);
+		UCTSearch searcher = new UCTSearchBasic(treeHead, board);
+		GoPlayer goPlayer = new GoPlayer(board, searcher);
 		goPlayer.setLocation(100, 100);
 		goPlayer.setSize(675,675);
 		goPlayer.setVisible(true);
-		playRandom(board);
+		//playRandom(board);
 		//playDet(board);
-		Colour winner = board.scoreBoard();
+		
+		
+		/*Colour winner = board.scoreBoard();
 		if(winner==Colour.WHITE) System.out.println("white wins");
 		else if(winner==Colour.BLACK) System.out.println("black wins");
 		else System.out.println("Draw");
+		*/
 		
 	}
 }

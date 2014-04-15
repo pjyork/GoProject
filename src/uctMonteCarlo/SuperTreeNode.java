@@ -7,25 +7,31 @@ import boardRep.Global;
 import boardRep.GoBoard;
 
 public class SuperTreeNode implements TreeNode {
+	protected TreeNode parent;
 	List<Child> children;
-	int numberOfTrials;
-	float expectedWins;
-	float uncertainty;
-	GoBoard goBoard;
-	Colour whoseTurn;
+	private int numberOfTrials;
+	private float expectedWins;
+	private float uncertainty;
+	private float expectedWinsSquaredSum;
+	Colour whoseTurn;	
+
+	
+	public SuperTreeNode(List<Child> children, Colour whoseTurn, TreeNode parent){
+		this.children = children;
+		this.whoseTurn = whoseTurn;
+		this.parent = parent;
+	}
+	public SuperTreeNode(Colour whoseTurn){
+		this.whoseTurn=whoseTurn;
+	}
+	
 	
 	public float getMaxValue(){
-		return (float) Math.min(expectedWins+uncertainty, 1.0);
+		return expectedWins+uncertainty;
 	}
 	
 	public float getMinValue(){
-		return (float) Math.max(expectedWins-uncertainty, 0.0);
-	}
-	
-	public SuperTreeNode(List<Child> children, GoBoard goBoard, Colour whoseTurn){
-		this.children = children;
-		this.whoseTurn=whoseTurn;
-		this.goBoard = goBoard;
+		return expectedWins-uncertainty;
 	}
 	
 	@Override
@@ -49,7 +55,7 @@ public class SuperTreeNode implements TreeNode {
 	}
 
 	@Override
-	public void generateChildren() {
+	public void generateChildren(GoBoard goBoard) {
 		Colour nextTurn = Colour.GREY;
 		if(whoseTurn==Colour.BLACK){
 			nextTurn = Colour.WHITE;
@@ -59,12 +65,12 @@ public class SuperTreeNode implements TreeNode {
 		}
 		for(int i=Global.board_size+2;i<Global.array_size;i++){
 			if(goBoard.check(i,whoseTurn)){
-				children.add(new Child(new MyLinkedListTreeNode(goBoard,nextTurn),i));
+				children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(), nextTurn, parent),i));
 			}
 		}
-		playAllChildrenOnce();
+		playAllChildrenOnce(goBoard);
 	}
-	private void playAllChildrenOnce(){
+	private void playAllChildrenOnce(GoBoard goBoard){
 		for(int i=0;i<children.size();i++){
 			GoBoard newBoard = goBoard.clone();
 			Child child = children.get(i);
@@ -77,9 +83,27 @@ public class SuperTreeNode implements TreeNode {
 
 	@Override
 	public void update(Colour winner) {
-				
+				if(winner==Colour.BLACK)expectedWins=((expectedWins*numberOfTrials)+1)/(numberOfTrials+1);
+				else expectedWins = (expectedWins*numberOfTrials)/(numberOfTrials+1);
+
+				expectedWinsSquaredSum = ((expectedWinsSquaredSum*numberOfTrials)+expectedWins*expectedWins)/(numberOfTrials+1);
+				numberOfTrials++;
+				TreeNode treeHead = getTreeHead();
+				int n = treeHead.getNumberOfTrials();//total number of trials done
+				float logN = (float) Math.log(n);
+				float v =(float) (expectedWinsSquaredSum - (expectedWins*expectedWins) + Math.sqrt(logN/numberOfTrials));
+				float multiplier = Math.min(1/4, v);
+				uncertainty = (float) Math.sqrt((logN/numberOfTrials)*multiplier);
+				if(parent!=null) parent.update(winner);				
 	}
 
+	private TreeNode getTreeHead() {
+		TreeNode node = this;
+		while(node.parent!=null){
+			node = node.parent;
+		}
+		return node;
+	}
 	@Override
 	public Colour getWhoseTurn() { 
 		return whoseTurn;
@@ -113,5 +137,17 @@ public class SuperTreeNode implements TreeNode {
 			}
 		}
 		return currentMinChild;
+	}
+
+	@Override
+	public TreeNode makeMove(int move) {
+		TreeNode node = null;
+		for(int i=0;i<children.size();i++){
+			Child child = children.get(i);
+			if(child.move==move){
+				node = child.node;			
+			}
+		}
+		return node;
 	}	
 }

@@ -101,7 +101,9 @@ public class StringSet {
 		public StringSet clone(){
 			StringSet newStrings = new StringSet();
 			for(int i=0;i<Global.array_size;i++){
-				newStrings.nodes[i]=this.nodes[i].clone();
+				if(nodes[i]!=null){
+					newStrings.nodes[i]=this.nodes[i].clone();
+				}
 			}
 			
 			return newStrings;

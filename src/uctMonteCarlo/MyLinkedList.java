@@ -12,8 +12,10 @@ public class MyLinkedList<E> implements List<E> {//
 	@Override
 	public boolean add(E arg0) {
 		if(head!=null){
-			ListNode<E> node = head;
-			tail.next = new ListNode<E>(arg0,node,null);
+			ListNode<E> prevNode = tail;
+			ListNode<E> newNode = new ListNode<E>(arg0,prevNode,null);
+			tail.next = newNode;
+			tail = tail.next;
 		}
 		else{
 			head = new ListNode<E>(arg0,null,null);

@@ -10,6 +10,10 @@ public class GoBoard {
 	private Colour board[] = new Colour[Global.array_size];//we want a border of 'edge' positions so +2
 												// using a 1D array is useful because using single dimensional coordinates
 												// makes function calls etc. less expensive
+	
+	private Colour territory[] = new Colour[Global.array_size];
+	
+	
 	private int stoneNum;
 	private LinkedList<BoardListener> listeners;
 
@@ -43,6 +47,7 @@ public class GoBoard {
 			else{
 				board[i]=Colour.EMPTY;
 			}
+			territory[i]=Colour.EMPTY;
 		}
 		this.listeners = new LinkedList<BoardListener>();
 		this.strings = new StringSet();
@@ -184,67 +189,77 @@ public class GoBoard {
 			l.boardChanged();
 		}
 	}
-	private Colour territory(int pos){
-		Colour n,e,s,w;
-		n = board[n(pos)];
-		e = board[e(pos)];
-		s = board[s(pos)];
-		w = board[w(pos)];
-		if(n==Colour.EMPTY) n=territoryRec(n(pos),0);
-		if(e==Colour.EMPTY) e=territoryRec(e(pos),1);
-		if(s==Colour.EMPTY) s=territoryRec(s(pos),2);
-		if(w==Colour.EMPTY) w=territoryRec(w(pos),3);
-		
-		if(n==e&&e==s&&s==w){
-			return n;
+	
+	private void gameFinished(){
+		for(int i = 0;i<Global.array_size;i++){
+			territory[i]=board[i];
 		}
-		else{
-			return Colour.GREY;
-		}		
+	}
+	
+	private Colour territory(int pos){
+		if(territory[pos]==Colour.EMPTY){
+			Colour n,e,s,w;
+			n = territory[n(pos)];
+			e = territory[e(pos)];
+			s = territory[s(pos)];
+			w = territory[w(pos)];
+			territory[pos]=Colour.GREY;
+			if(n==Colour.EMPTY) n=territoryRec(n(pos),0);
+			if(e==Colour.EMPTY) e=territoryRec(e(pos),1);
+			if(s==Colour.EMPTY) s=territoryRec(s(pos),2);
+			if(w==Colour.EMPTY) w=territoryRec(w(pos),3);
+			
+			if(n==e&&e==s&&s==w){
+				territory[pos]=n;
+				return n;
+			}
+		}	
+		territory[pos] = Colour.GREY;
+		return Colour.GREY;
 	}
 	
 	
 	private Colour territoryRec(int pos,int dir){
 		//recursive call of territory. includes a direction so you don't backtrack to empty space
 		//0 has come from south, 1 from west, 2 from north, 3 from east
-		Colour n,e,s,w;
-		n = board[n(pos)];
-		e = board[e(pos)];
-		s = board[s(pos)];
-		w = board[w(pos)];
-		if(n==Colour.EMPTY&&dir!=2) n=territory(n(pos));
-		if(e==Colour.EMPTY&&dir!=3) e=territory(n(pos));
-		if(s==Colour.EMPTY&&dir!=1) s=territory(n(pos));
-		if(w==Colour.EMPTY&&dir!=0) w=territory(n(pos));
-		
-		switch (dir) {
-        case 0:  s=n;
-                 break;
-        case 1:  w=n;
-                 break;
-        case 2:  n=s;
-                 break;
-        case 3:  e=n;
-                 break;
-        default: break;
-    }
-		
-		if(n==e&&e==s&&s==w){
-			return n;
+		if(territory[pos]!=Colour.GREY){
+			Colour n,e,s,w;
+			n = territory[n(pos)];
+			e = territory[e(pos)];
+			s = territory[s(pos)];
+			w = territory[w(pos)];
+			if(n==Colour.EMPTY&&dir!=2) n=territory(n(pos));
+			if(e==Colour.EMPTY&&dir!=3) e=territory(e(pos));
+			if(s==Colour.EMPTY&&dir!=0) s=territory(s(pos));
+			if(w==Colour.EMPTY&&dir!=1) w=territory(w(pos));
+			
+			switch (dir) {
+	        case 0:  s=n;
+	                 break;
+	        case 1:  w=n;
+	                 break;
+	        case 2:  n=s;
+	                 break;
+	        case 3:  e=n;
+	                 break;
+	        default: break;
+	    }
+			
+			if(n==e&&e==s&&s==w){
+				return n;
+			}	
 		}
-		else{
-			return Colour.GREY;
-		}		
+		return Colour.GREY;
 	}
-	
 	public Colour scoreBoard(){
 		int w = 0;
 		int b = 0;
+		gameFinished();
 		for(int i = 0;i<Global.array_size;i++){
-			if(board[i]!=Colour.GREY){
-				if(board[i]==Colour.WHITE)w++;
-				else if(board[i]==Colour.BLACK)b++;
-				else {//board[i] is empty
+			if(territory[i]!=Colour.GREY){
+				if(territory[i]==Colour.WHITE)w++;
+				else if(territory[i]==Colour.BLACK)b++;
+				else {//territory[i] is empty
 					Colour t = territory(i);
 					if(t==Colour.WHITE) w++;
 					else if(t==Colour.BLACK)b++;
@@ -267,11 +282,11 @@ public class GoBoard {
 	}
 	public Colour randomPlayout(Colour whoseTurn) {
 		int i = 0;
-		while(i<10000&&!isFull()){
+		while(i<1000&&!isFull()){
 			if(put(whoseTurn, (int) (Math.random()*(Global.array_size)))){
-				i++;
 				whoseTurn = Global.opponent(whoseTurn);
 			}
+			i++;
 		}
 		return scoreBoard();		
 	}

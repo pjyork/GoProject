@@ -8,8 +8,8 @@ import boardRep.GoBoard;
 public class LinkedListTreeNode extends SuperTreeNode {
 
 	public LinkedListTreeNode(List<Child> children, GoBoard goBoard,
-			Colour whoseTurn) {
-		super(children, goBoard, whoseTurn);
+			Colour whoseTurn, TreeNode parent) {
+		super(children, whoseTurn, parent);
 	}
 
 }

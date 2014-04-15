@@ -1,96 +1,95 @@
 package uctMonteCarlo;
 
-import boardRep.*;
-
 import java.util.List;
 
-public class MyLinkedListTreeNode implements TreeNode {
+import boardRep.Colour;
+import boardRep.Global;
+import boardRep.GoBoard;
+
+public class MyLinkedListTreeNode extends SuperTreeNode {
+	
 	MyLinkedList<Child> children;
-	int numberOfTrials;
-	float expectedWins;
-	GoBoard goBoard;
-	Colour whoseTurn;
 	
-	public MyLinkedListTreeNode(GoBoard gb, Colour whoseTurn){
-		children = new MyLinkedList<Child>();
-		this.whoseTurn=whoseTurn;
-		goBoard = gb;
+	public MyLinkedListTreeNode(MyLinkedList<Child> children,Colour whoseTurn, TreeNode parent) {
+		super(children,whoseTurn, parent);
+		this.children=children;
 	}
-		
 	
 	@Override
-	public List<Child> getChildren() {
-		return children;
-	}
-
-	@Override
-	public int getNumberOfTrials() {
-		return numberOfTrials;
-	}
-
-	@Override
-	public float getValue() {
-		return expectedWins;
-	}
-
-	@Override
-	public boolean isLeaf() {
-		return children.isEmpty();
-	}
-
-	@Override
-	public void generateChildren() {
+	public void generateChildren(GoBoard goBoard) {
 		Colour nextTurn = Colour.GREY;
-		if(whoseTurn==Colour.BLACK){
-			nextTurn = Colour.WHITE;
-		}
-		else{
-			nextTurn = Colour.BLACK;
-		}
+		//nextTurn = Global.opponent(super.whoseTurn);
+		if(super.whoseTurn==Colour.WHITE) nextTurn=Colour.BLACK;
+		else nextTurn = Colour.WHITE;
+		
+		
 		for(int i=Global.board_size+2;i<Global.array_size;i++){
 			if(goBoard.check(i,whoseTurn)){
-				children.add(new Child(new MyLinkedListTreeNode(goBoard,nextTurn),i));
+				children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(),nextTurn, this.parent),i));
 			}
 		}
-		playAllChildrenOnce();
+		playAllChildrenOnce(goBoard);
 	}
-	private void playAllChildrenOnce(){
-		ListNode<Child> child = children.getHead();
-		while(child.next!=null){
+	private void playAllChildrenOnce(GoBoard goBoard){
+		ListNode<Child> listNode = children.getHead();
+		while(listNode.next!=null){
+			Child child = listNode.data;
 			GoBoard newBoard = goBoard.clone();
-			newBoard.put(whoseTurn, child.data.getMove());
+			newBoard.put(whoseTurn, child.getMove());
 			Colour winner = newBoard.randomPlayout(Global.opponent(whoseTurn));
-			child.data.node.update(winner);
+			child.node.update(winner);			
+			listNode=listNode.next;
 		}
-	}
-
-
-	@Override
-	public void update(Colour winner) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public Colour getWhoseTurn() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public TreeNode getMaxChild() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public TreeNode getMinChild() {
-		// TODO Auto-generated method stub
-		return null;
 	}	
+	
+	@Override
+	public TreeNode makeMove(int move) {
+		TreeNode node = null;
+		ListNode<Child> listNode = children.head;
+		while(listNode!=null){
+			Child child = listNode.data;
+			if(child.move==move){
+				node = child.node;			
+			}
+			listNode = listNode.next;
+		}
+		return node;
+	}	
+	
+	@Override
+	public Child getMaxChild() {
+		Child currentMaxChild = children.get(0);
+		float currentMaxValue = currentMaxChild.node.getMaxValue();
+		
+		ListNode<Child> listNode = children.head;
+		while(listNode!=null){
+			Child child = listNode.data;
+			float val = child.node.getMaxValue();
+			if(child.node.getMaxValue()>currentMaxValue){
+				currentMaxChild = child;
+				currentMaxValue = val;	
+			}
+			listNode = listNode.next;
+		}
+		return currentMaxChild;
+	}
 
-
+	@Override
+	public Child getMinChild() {
+		Child currentMinChild = children.get(0);
+		float currentMinValue = currentMinChild.node.getMinValue();
+		
+		ListNode<Child> listNode = children.head;
+		while(listNode!=null){
+			Child child = listNode.data;
+			float val = child.node.getMinValue();
+			if(child.node.getMinValue()<currentMinValue){
+				currentMinChild = child;
+				currentMinValue = val;	
+			}
+			listNode = listNode.next;
+		}
+		return currentMinChild;
+	}
+	
 }
