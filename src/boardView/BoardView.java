@@ -18,12 +18,13 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import boardRep.Colour;
+import boardRep.Global;
 
 import boardRep.GoBoard;
 
 public class BoardView extends JPanel{
 	protected final JFrame goPlayer;
-	private final int size = 19; //determines the dimensions of the board
+	private final int size = Global.board_size; //determines the dimensions of the board
 	protected final GoBoard goBoard;
 	private final int border = 20;
 	private GoMouseListener mouse;
@@ -59,13 +60,13 @@ public class BoardView extends JPanel{
 		int width = getWidth();
 		int x = pos.x - border;
 		int y = pos.y - border;
-		int horistep = (width - (2*border))/18;
-		int vertstep = (height - (2*border))/18;
+		int horistep = (width - (2*border))/(size-1);
+		int vertstep = (height - (2*border))/(size-1);
 		x+=horistep/2;
 		y+=vertstep/2;
 		x = x/horistep;
 		y = y/vertstep;
-		int arrayPos = 21 + x + y*20;
+		int arrayPos = (Global.board_size+2) + x + y*(Global.board_size+1);
 		return arrayPos;
 	}
 
@@ -88,17 +89,17 @@ public class BoardView extends JPanel{
 		g2d.fillRect(0, 0, width, height);
 		g2d.setColor(Color.GREEN);
 		g2d.drawRect(border, border, width-(2*border), height-(2*border));
-		int horistep = (width - (2*border))/18;
-		int vertstep = (height - (2*border))/18;
+		int horistep = (width - (2*border))/(Global.board_size-1);
+		int vertstep = (height - (2*border))/(Global.board_size-1);
 		
 		for(int i = 1;i<18;i++){
 			g2d.drawLine(border+(horistep*i), border, border+(horistep*i), height-border);
 			g2d.drawLine(border, border+(vertstep*i), width-border, border+(vertstep*i));
 		}	
 		
-		for(int i = 0;i<19;i++){
-			for(int j = 0;j<19;j++){
-				int pos = 21 + i + j*20;
+		for(int i = 0;i<Global.board_size;i++){
+			for(int j = 0;j<Global.board_size;j++){
+				int pos = Global.board_size+2 + i + j*(Global.board_size+1);
 				Colour c = goBoard.getColour(pos);
 				int horioffset = horistep/4;
 				int vertoffset = vertstep/4;

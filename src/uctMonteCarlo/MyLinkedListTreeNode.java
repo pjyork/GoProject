@@ -16,29 +16,34 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 	}
 	
 	@Override
-	public void generateChildren(GoBoard goBoard) {
+	public int generateChildren(GoBoard goBoard) {
 		Colour nextTurn = Colour.GREY;
 		//nextTurn = Global.opponent(super.whoseTurn);
 		if(super.whoseTurn==Colour.WHITE) nextTurn=Colour.BLACK;
 		else nextTurn = Colour.WHITE;
+		int generated = 0;
 		
 		
 		for(int i=Global.board_size+2;i<Global.array_size;i++){
 			if(goBoard.check(i,whoseTurn)){
-				children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(),nextTurn, this.parent),i));
+				children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(),nextTurn, this),i));
+				generated++;
 			}
 		}
 		playAllChildrenOnce(goBoard);
+		return generated;
 	}
 	private void playAllChildrenOnce(GoBoard goBoard){
+		if(!children.isEmpty()){
 		ListNode<Child> listNode = children.getHead();
-		while(listNode.next!=null){
-			Child child = listNode.data;
-			GoBoard newBoard = goBoard.clone();
-			newBoard.put(whoseTurn, child.getMove());
-			Colour winner = newBoard.randomPlayout(Global.opponent(whoseTurn));
-			child.node.update(winner);			
-			listNode=listNode.next;
+			while(listNode.next!=null){
+				Child child = listNode.data;
+				GoBoard newBoard = goBoard.clone();
+				newBoard.put(whoseTurn, child.getMove());
+				Colour winner = newBoard.randomPlayout(Global.opponent(whoseTurn));
+				child.node.update(winner);			
+				listNode=listNode.next;
+			}
 		}
 	}	
 	

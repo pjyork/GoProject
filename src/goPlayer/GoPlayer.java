@@ -90,10 +90,10 @@ public class GoPlayer extends JFrame{
 	}
 
 	private static void playRandom(GoBoard board){
-		/*int i =0;
+		int i =0;
 		int j =0;
 		int playcount=0;
-		while(!board.isFull()&&playcount<10000){
+		while(!board.isFull()&&playcount<100){
 			try {
 				Thread.sleep(0);
 			} catch (InterruptedException e) {
@@ -102,19 +102,19 @@ public class GoPlayer extends JFrame{
 			}
 			playcount++;
 			if(i==1){
-			if(board.put(Colour.WHITE, (int) (Math.random()*(20*21)))){
+			if(board.put(Colour.WHITE, (int) (Math.random()*(Global.array_size)))){
 				i = ++i%2;
 			}
 		}
 		else{
-			if(board.put(Colour.BLACK, (int) (Math.random()*(21*20)))){
+			if(board.put(Colour.BLACK, (int) (Math.random()*(Global.array_size)))){
 				i = ++i%2;
 			}
 		}
 		
 		}
-		*/
-		board.randomPlayout(Colour.BLACK);
+		
+		//board.randomPlayout(Colour.BLACK);
 
 	}
 	
@@ -123,7 +123,7 @@ public class GoPlayer extends JFrame{
 	}
 	
 	public void computerPlay(){
-		int move = this.searcher.findAMove(Colour.WHITE,250);
+		int move = this.searcher.findAMove(Colour.WHITE,1000);
 		goBoard.put(Colour.WHITE, move);
 	}
 	
@@ -140,6 +140,7 @@ public class GoPlayer extends JFrame{
 		goPlayer.setVisible(true);
 		//playRandom(board);
 		//playDet(board);
+		compVsRandom(board,searcher);
 		
 		
 		/*Colour winner = board.scoreBoard();
@@ -148,5 +149,34 @@ public class GoPlayer extends JFrame{
 		else System.out.println("Draw");
 		*/
 		
+	}
+
+	private static void compVsRandom(GoBoard board, UCTSearch searcher) {
+		int games = 0,moves=0,wins=0;
+		while(games<50){
+			MyLinkedList<Child> children = new MyLinkedList<Child>();
+			TreeNode treeHead = new MyLinkedListTreeNode(children, Colour.BLACK, null);
+			UCTSearch searcherr = new UCTSearchBasic(treeHead, board);
+			while(moves<5000&&!board.isFull()){
+				int blackMove = (int) (Math.random()*(Global.array_size));
+				if(board.put(Colour.BLACK,blackMove )){
+					searcherr.makeMove(blackMove);
+					int whiteMove = searcherr.findAMove(Colour.WHITE,100);
+					board.put(Colour.WHITE, whiteMove);	
+					//System.out.println(whiteMove);
+				}
+				moves+=1;
+				if(moves%1000==0){
+					System.out.println("move " + moves +  " taken");
+				}
+			}
+			if(board.scoreBoard()==Colour.WHITE) wins++;
+			games++;
+			System.out.println(wins+" / " + games);
+			board.reset();
+			moves = 0;
+		}
+		
+		System.out.println(wins);
 	}
 }

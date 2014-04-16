@@ -55,7 +55,7 @@ public class SuperTreeNode implements TreeNode {
 	}
 
 	@Override
-	public void generateChildren(GoBoard goBoard) {
+	public int generateChildren(GoBoard goBoard) {
 		Colour nextTurn = Colour.GREY;
 		if(whoseTurn==Colour.BLACK){
 			nextTurn = Colour.WHITE;
@@ -63,12 +63,16 @@ public class SuperTreeNode implements TreeNode {
 		else{
 			nextTurn = Colour.BLACK;
 		}
+		
+		int generated = 0;
 		for(int i=Global.board_size+2;i<Global.array_size;i++){
 			if(goBoard.check(i,whoseTurn)){
 				children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(), nextTurn, parent),i));
+				generated++;
 			}
 		}
 		playAllChildrenOnce(goBoard);
+		return generated;
 	}
 	private void playAllChildrenOnce(GoBoard goBoard){
 		for(int i=0;i<children.size();i++){

@@ -55,8 +55,24 @@ public class GoBoard {
 		
 	}
 	
-	
 	//public functions
+	public void reset(){
+		for(int i = 0;i<Global.array_size;i++){
+			if(i%(Global.board_size+1)==0||i<Global.board_size+1||i>Global.board_size*(Global.board_size+2)){
+				board[i]=Colour.GREY;
+			}
+			else if(i%2==0){
+				board[i]=Colour.EMPTY;
+			}
+			else{
+				board[i]=Colour.EMPTY;
+			}
+			territory[i]=Colour.EMPTY;
+		}
+		stoneNum=0;
+	}
+	
+	
 	public boolean put(Colour colour, int pos){//this is used to put stones onto the board
 		if(pos<Global.array_size&&pos>Global.board_size){
 			if(stoneNum<19*19&&board[pos]==Colour.EMPTY){
@@ -124,7 +140,7 @@ public class GoBoard {
 	}
 
 	public boolean check(int pos,Colour c) {
-		if(pos==board_ko_pos) return false;
+		if(pos==board_ko_pos||board[pos]!=Colour.EMPTY) return false;
 		if(board[n(pos)]==Colour.EMPTY||board[e(pos)]==Colour.EMPTY||board[s(pos)]==Colour.EMPTY||board[w(pos)]==Colour.EMPTY) return true;
 		boolean hasNeighbourWithLiberties=false;boolean capturesNeighbour = false;
 		if(board[n(pos)]!=Colour.GREY){
@@ -173,7 +189,7 @@ public class GoBoard {
 	
 	
 	public boolean isFull(){
-		return stoneNum>=19*19;
+		return stoneNum>=Global.board_size*Global.board_size;
 	}
 	private void classifyEyespace(){//working out which areas are eyespaces and who they belong to
 		

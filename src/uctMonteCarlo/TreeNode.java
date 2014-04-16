@@ -11,7 +11,7 @@ public interface TreeNode {
 	int getNumberOfTrials();// get the number of times this node has been played out
 	float getValue();//get the % of the time which you win from this position
 	boolean isLeaf();//returns whether the node is a leaf (does it have any children yet)
-	void generateChildren(GoBoard goBoard);
+	int generateChildren(GoBoard goBoard);
 	void update(Colour winner);
 	Colour getWhoseTurn();
 	Child getMaxChild();
