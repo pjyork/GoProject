@@ -14,7 +14,13 @@ public class StringSet {
 				this.liberties= new ArrayLiberties();
 			}
 			public Node clone(){
-				return new Node(position,parent,rank,colour);
+				Node newNode = new Node(position,null,rank,colour);
+				if(parent==this){
+					newNode.parent=newNode;
+				}
+				else newNode.parent = parent;
+				newNode.liberties=this.liberties.clone();
+				return newNode;
 			}
 	   };
 	   Node[] nodes = new Node[Global.array_size]; // an array which contains the node, if it exists, for each position on the board
@@ -102,11 +108,41 @@ public class StringSet {
 			StringSet newStrings = new StringSet();
 			for(int i=0;i<Global.array_size;i++){
 				if(nodes[i]!=null){
-					newStrings.nodes[i]=this.nodes[i].clone();
+					newStrings.nodes[i]=this.nodes[i];
 				}
 			}
-			
+			newStrings.cloneNodes();
 			return newStrings;
+		}
+		private void cloneNodes() {
+			boolean[] added = new boolean[Global.array_size];
+			for(int i = 0; i<Global.array_size;i++){
+				if(!added[i]&&nodes[i]!=null){
+					nodes[i]=nodes[i].clone();
+					if(nodes[i].parent!=nodes[i]){
+						Node node = nodes[i].parent;
+						if(!added[node.position]){
+							while(!added[node.position]){
+								int pos = node.position;
+								nodes[pos]=node.clone();
+								added[pos]=true;
+								if(nodes[pos].position == nodes[pos].parent.position) nodes[pos].parent=nodes[pos];
+								node=node.parent;
+							}
+							node = nodes[i];
+							while(node!=node.parent){
+								node.parent = nodes[node.parent.position];
+								node=node.parent;
+							}
+							
+						}
+						else{							
+							nodes[i].parent=nodes[node.position];
+						}
+					}
+					added[i]=true;
+				}
+			}
 		}
 		
 }

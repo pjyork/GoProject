@@ -18,9 +18,9 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 	@Override
 	public int generateChildren(GoBoard goBoard) {
 		Colour nextTurn = Colour.GREY;
-		//nextTurn = Global.opponent(super.whoseTurn);
-		if(super.whoseTurn==Colour.WHITE) nextTurn=Colour.BLACK;
-		else nextTurn = Colour.WHITE;
+		nextTurn = Global.opponent(super.whoseTurn);
+		//if(super.whoseTurn==Colour.WHITE) nextTurn=Colour.BLACK;
+		//else nextTurn = Colour.WHITE;
 		int generated = 0;
 		
 		
@@ -64,13 +64,13 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 	@Override
 	public Child getMaxChild() {
 		Child currentMaxChild = children.get(0);
-		float currentMaxValue = currentMaxChild.node.getMaxValue();
+		float currentMaxValue = currentMaxChild.node.getBlackValue();
 		
 		ListNode<Child> listNode = children.head;
 		while(listNode!=null){
 			Child child = listNode.data;
-			float val = child.node.getMaxValue();
-			if(child.node.getMaxValue()>currentMaxValue){
+			float val = child.node.getBlackValue();
+			if(child.node.getBlackValue()>currentMaxValue){
 				currentMaxChild = child;
 				currentMaxValue = val;	
 			}
@@ -82,19 +82,35 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 	@Override
 	public Child getMinChild() {
 		Child currentMinChild = children.get(0);
-		float currentMinValue = currentMinChild.node.getMinValue();
+		float currentMinValue = currentMinChild.node.getWhiteValue();
 		
 		ListNode<Child> listNode = children.head;
 		while(listNode!=null){
 			Child child = listNode.data;
-			float val = child.node.getMinValue();
-			if(child.node.getMinValue()<currentMinValue){
+			float val = child.node.getWhiteValue();
+			if(val<currentMinValue){
 				currentMinChild = child;
 				currentMinValue = val;	
 			}
 			listNode = listNode.next;
 		}
 		return currentMinChild;
+	}
+	
+	
+	@Override
+	public void  childPrint() {		
+		ListNode<Child> listNode = children.head;
+		String moves = "";
+		while(listNode!=null){
+			Child child = listNode.data;
+			moves = moves +"," +child.move;
+			listNode = listNode.next;
+		}
+		String whoseTurnString = "";
+		if(whoseTurn==Colour.WHITE) whoseTurnString ="White";
+		else whoseTurnString = "Black";
+		System.out.println(whoseTurnString+" moves - "+moves);
 	}
 	
 }

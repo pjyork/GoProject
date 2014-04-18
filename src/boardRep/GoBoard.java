@@ -70,11 +70,12 @@ public class GoBoard {
 			territory[i]=Colour.EMPTY;
 		}
 		stoneNum=0;
+		strings = new StringSet();
 	}
 	
 	
 	public boolean put(Colour colour, int pos){//this is used to put stones onto the board
-		if(pos<Global.array_size&&pos>Global.board_size){
+		if(pos<Global.array_size&&pos>Global.board_size&&(colour==Colour.BLACK||colour==Colour.WHITE)){
 			if(stoneNum<19*19&&board[pos]==Colour.EMPTY){
 					if(check(pos, colour)){
 						board[pos]=colour;
@@ -140,6 +141,7 @@ public class GoBoard {
 	}
 
 	public boolean check(int pos,Colour c) {
+		if(pos==0){return true;}
 		if(pos==board_ko_pos||board[pos]!=Colour.EMPTY) return false;
 		if(board[n(pos)]==Colour.EMPTY||board[e(pos)]==Colour.EMPTY||board[s(pos)]==Colour.EMPTY||board[w(pos)]==Colour.EMPTY) return true;
 		boolean hasNeighbourWithLiberties=false;boolean capturesNeighbour = false;
@@ -164,25 +166,28 @@ public class GoBoard {
 	private int removeString(int pos) {
 		//removes the string at pos
 		Colour colour = board[pos];
-		int removed = 1;
-		board[pos]=Colour.EMPTY;
-		stoneNum--;
-		strings.remove(pos);
-		if(n(pos)<Global.array_size&&n(pos)>=0){
-			if(board[n(pos)]==colour){removed+=removeString(n(pos));}
-			else{strings.addLiberty(n(pos), pos);}
-		}
-		if(e(pos)<Global.array_size&&e(pos)>=0){
-			if(board[e(pos)]==colour){removed+=removeString(e(pos));}
-			else{strings.addLiberty(e(pos), pos);}
-		}
-		if(s(pos)<Global.array_size&&s(pos)>=0){
-			if(board[s(pos)]==colour){removed+=removeString(s(pos));}
-			else{strings.addLiberty(s(pos), pos);}
-		}
-		if(w(pos)<Global.array_size&&w(pos)>=0){
-			if(board[w(pos)]==colour){removed+=removeString(w(pos));}
-			else{strings.addLiberty(w(pos), pos);}
+		int removed = 0;
+		if(colour==Colour.BLACK||colour==Colour.WHITE){
+			board[pos]=Colour.EMPTY;
+			removed++;
+			stoneNum--;
+			strings.remove(pos);
+			if(n(pos)<Global.array_size&&n(pos)>=0){
+				if(board[n(pos)]==colour){removed+=removeString(n(pos));}
+				else{strings.addLiberty(n(pos), pos);}
+			}
+			if(e(pos)<Global.array_size&&e(pos)>=0){
+				if(board[e(pos)]==colour){removed+=removeString(e(pos));}
+				else{strings.addLiberty(e(pos), pos);}
+			}
+			if(s(pos)<Global.array_size&&s(pos)>=0){
+				if(board[s(pos)]==colour){removed+=removeString(s(pos));}
+				else{strings.addLiberty(s(pos), pos);}
+			}
+			if(w(pos)<Global.array_size&&w(pos)>=0){
+				if(board[w(pos)]==colour){removed+=removeString(w(pos));}
+				else{strings.addLiberty(w(pos), pos);}
+			}
 		}
 		return removed;
 	}
@@ -293,6 +298,9 @@ public class GoBoard {
 		newBoard.stoneNum = this.stoneNum;
 		newBoard.board_ko_pos = this.board_ko_pos;
 		newBoard.strings = this.strings.clone();
+		for(int i = 0; i<Global.array_size;i++){
+			newBoard.board[i]=board[i];
+		}
 		return newBoard;
 		
 	}

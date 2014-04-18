@@ -16,7 +16,9 @@ public interface TreeNode {
 	Colour getWhoseTurn();
 	Child getMaxChild();
 	Child getMinChild();
-	float getMaxValue();
-	float getMinValue();
+	float getBlackValue();
+	float getWhiteValue();
 	TreeNode makeMove(int move);
+	void detach();
+	void childPrint();
 }

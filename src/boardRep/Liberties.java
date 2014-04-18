@@ -8,4 +8,5 @@ public interface Liberties {
 	public boolean contains(int pos);
 	public void add(int pos);
 	public void remove(int pos);
+	public Liberties clone();
 }

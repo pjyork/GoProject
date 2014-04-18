@@ -26,12 +26,12 @@ public class SuperTreeNode implements TreeNode {
 	}
 	
 	
-	public float getMaxValue(){
+	public float getBlackValue(){
 		return expectedWins+uncertainty;
 	}
 	
-	public float getMinValue(){
-		return expectedWins-uncertainty;
+	public float getWhiteValue(){
+		return (1-expectedWins)+uncertainty;
 	}
 	
 	@Override
@@ -87,18 +87,21 @@ public class SuperTreeNode implements TreeNode {
 
 	@Override
 	public void update(Colour winner) {
-				if(winner==Colour.BLACK)expectedWins=((expectedWins*numberOfTrials)+1)/(numberOfTrials+1);
-				else expectedWins = (expectedWins*numberOfTrials)/(numberOfTrials+1);
-
-				expectedWinsSquaredSum = ((expectedWinsSquaredSum*numberOfTrials)+expectedWins*expectedWins)/(numberOfTrials+1);
-				numberOfTrials++;
-				TreeNode treeHead = getTreeHead();
-				int n = treeHead.getNumberOfTrials();//total number of trials done
-				float logN = (float) Math.log(n);
-				float v =(float) (expectedWinsSquaredSum - (expectedWins*expectedWins) + Math.sqrt(logN/numberOfTrials));
-				float multiplier = Math.min(1/4, v);
-				uncertainty = (float) Math.sqrt((logN/numberOfTrials)*multiplier);
-				if(parent!=null) parent.update(winner);				
+				if(parent!=null){ 
+					parent.update(winner);		
+					if(winner==Colour.BLACK)expectedWins=((expectedWins*numberOfTrials)+1)/(numberOfTrials+1);
+					else expectedWins = (expectedWins*numberOfTrials)/(numberOfTrials+1);
+	
+					expectedWinsSquaredSum = ((expectedWinsSquaredSum*numberOfTrials)+expectedWins*expectedWins)/(numberOfTrials+1);
+					numberOfTrials++;
+					int n = 1;
+					
+					float logN = (float) Math.log(n);
+					float v =(float) (expectedWinsSquaredSum - (expectedWins*expectedWins) + Math.sqrt(logN/numberOfTrials));
+					float multiplier = Math.min((float)(0.25), v);
+					uncertainty = (float) Math.sqrt((logN/numberOfTrials)*multiplier);	
+				}
+				else numberOfTrials++;
 	}
 
 	private TreeNode getTreeHead() {
@@ -116,10 +119,10 @@ public class SuperTreeNode implements TreeNode {
 	@Override
 	public Child getMaxChild() {
 		Child currentMaxChild = children.get(0);
-		float currentMaxValue = currentMaxChild.node.getMaxValue();
+		float currentMaxValue = currentMaxChild.node.getBlackValue();
 		for(int i=0;i<children.size();i++){
 			Child child = children.get(i);
-			float val = child.node.getMaxValue();
+			float val = child.node.getBlackValue();
 			if(val >currentMaxValue){
 				currentMaxChild = child;
 				currentMaxValue = val;				
@@ -131,10 +134,10 @@ public class SuperTreeNode implements TreeNode {
 	@Override
 	public Child getMinChild() {
 		Child currentMinChild = children.get(0);
-		float currentMinValue = currentMinChild.node.getMinValue();
+		float currentMinValue = currentMinChild.node.getWhiteValue();
 		for(int i=0;i<children.size();i++){
 			Child child = children.get(i);
-			float val = child.node.getMinValue();
+			float val = child.node.getWhiteValue();
 			if(val<currentMinValue){
 				currentMinChild = child;
 				currentMinValue = val;				
@@ -153,5 +156,17 @@ public class SuperTreeNode implements TreeNode {
 			}
 		}
 		return node;
+	}
+	@Override
+	public void detach() {
+		parent = null;		
+	}
+	@Override
+	public void  childPrint() {
+		for(int i=0;i<children.size();i++){
+			Child child = children.get(i);
+			System.out.println("Move - "+child.move+" ");
+			
+		}
 	}	
 }

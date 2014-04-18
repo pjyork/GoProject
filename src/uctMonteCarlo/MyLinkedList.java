@@ -15,7 +15,7 @@ public class MyLinkedList<E> implements List<E> {//
 			ListNode<E> prevNode = tail;
 			ListNode<E> newNode = new ListNode<E>(arg0,prevNode,null);
 			tail.next = newNode;
-			tail = tail.next;
+			tail = newNode;
 		}
 		else{
 			head = new ListNode<E>(arg0,null,null);
@@ -84,10 +84,13 @@ public class MyLinkedList<E> implements List<E> {//
 
 	@Override
 	public E get(int arg0) {
-		ListNode<E> node = head;
-		int i = 0;
-		while(node.next!=null&&i<arg0)node=node.next;
-		return node.data;
+		if(size!=0){
+			ListNode<E> node = head;
+			int i = 0;
+			while(node.next!=null&&i<arg0)node=node.next;
+			return node.data;
+		}
+		return null;
 	}
 
 	@Override

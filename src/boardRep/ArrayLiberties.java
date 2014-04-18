@@ -54,5 +54,13 @@ public class ArrayLiberties implements Liberties {
 	public void setNum(int newNum) {
 		num=newNum;
 	}
+	
+	@Override
+	public ArrayLiberties clone(){
+		ArrayLiberties newLiberties = new ArrayLiberties();
+		newLiberties.liberties=this.liberties.clone();
+		return newLiberties;
+		
+	}
 
 }

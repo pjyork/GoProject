@@ -93,9 +93,10 @@ public class GoPlayer extends JFrame{
 		int i =0;
 		int j =0;
 		int playcount=0;
-		while(!board.isFull()&&playcount<100){
+		while(!board.isFull()&&playcount<100000){
 			try {
-				Thread.sleep(0);
+				
+				Thread.sleep(150);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -158,16 +159,20 @@ public class GoPlayer extends JFrame{
 			TreeNode treeHead = new MyLinkedListTreeNode(children, Colour.BLACK, null);
 			UCTSearch searcherr = new UCTSearchBasic(treeHead, board);
 			while(moves<5000&&!board.isFull()){
-				int blackMove = (int) (Math.random()*(Global.array_size));
-				if(board.put(Colour.BLACK,blackMove )){
+				int blackMove = (int) ((Math.random()*(Global.array_size-1))+1);
+				if(board.put(Colour.BLACK,blackMove )){	
+					//System.out.println("black - " + blackMove);
 					searcherr.makeMove(blackMove);
-					int whiteMove = searcherr.findAMove(Colour.WHITE,100);
-					board.put(Colour.WHITE, whiteMove);	
-					//System.out.println(whiteMove);
+					int whiteMove = searcherr.findAMove(Colour.WHITE,(long) 15000);
+					board.put(Colour.WHITE, whiteMove);
+					//System.out.println("white - " + whiteMove);
 				}
 				moves+=1;
 				if(moves%1000==0){
 					System.out.println("move " + moves +  " taken");
+				}
+				if(board.isFull()){
+					moves+=5000;
 				}
 			}
 			if(board.scoreBoard()==Colour.WHITE) wins++;
