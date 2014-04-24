@@ -89,11 +89,11 @@ public class GoPlayer extends JFrame{
 		}
 	}
 
-	private static void playRandom(GoBoard board){
+	private static void playRandom(GoBoard board, int turns){
 		int i =0;
 		int j =0;
 		int playcount=0;
-		while(!board.isFull()&&playcount<100000){
+		while(!board.isFull()&&playcount<turns){
 			try {
 				
 				Thread.sleep(150);
@@ -103,17 +103,18 @@ public class GoPlayer extends JFrame{
 			}
 			playcount++;
 			if(i==1){
-			if(board.put(Colour.WHITE, (int) (Math.random()*(Global.array_size)))){
-				i = ++i%2;
+				if(board.put(Colour.WHITE, (int) (Math.random()*(Global.array_size)))){
+					i = ++i%2;
+				}
+			}
+			else{
+				if(board.put(Colour.BLACK, (int) (Math.random()*(Global.array_size)))){
+					i = ++i%2;
+				}
 			}
 		}
-		else{
-			if(board.put(Colour.BLACK, (int) (Math.random()*(Global.array_size)))){
-				i = ++i%2;
-			}
-		}
-		
-		}
+		GoBoard newBoard = board.clone();
+		newBoard.check(50, Colour.WHITE);
 		
 		//board.randomPlayout(Colour.BLACK);
 
@@ -124,7 +125,7 @@ public class GoPlayer extends JFrame{
 	}
 	
 	public void computerPlay(){
-		int move = this.searcher.findAMove(Colour.WHITE,1000);
+		int move = this.searcher.findAMove(Colour.WHITE,(long) 5000);
 		goBoard.put(Colour.WHITE, move);
 	}
 	
@@ -139,9 +140,12 @@ public class GoPlayer extends JFrame{
 		goPlayer.setLocation(100, 100);
 		goPlayer.setSize(675,675);
 		goPlayer.setVisible(true);
-		//playRandom(board);
+		
+		
+		
+		//playRandom(board, 60);
 		//playDet(board);
-		compVsRandom(board,searcher);
+		//compVsRandom(board,searcher);
 		
 		
 		/*Colour winner = board.scoreBoard();
@@ -153,7 +157,7 @@ public class GoPlayer extends JFrame{
 	}
 
 	private static void compVsRandom(GoBoard board, UCTSearch searcher) {
-		int games = 0,moves=0,wins=0;
+		int games = 0,moves=0,wins=0,passes=0;
 		while(games<50){
 			MyLinkedList<Child> children = new MyLinkedList<Child>();
 			TreeNode treeHead = new MyLinkedListTreeNode(children, Colour.BLACK, null);
@@ -163,23 +167,19 @@ public class GoPlayer extends JFrame{
 				if(board.put(Colour.BLACK,blackMove )){	
 					//System.out.println("black - " + blackMove);
 					searcherr.makeMove(blackMove);
-					int whiteMove = searcherr.findAMove(Colour.WHITE,(long) 15000);
+					int whiteMove = searcherr.findAMove(Colour.WHITE,(long) 500);
+					if(whiteMove==0)passes++;
 					board.put(Colour.WHITE, whiteMove);
-					//System.out.println("white - " + whiteMove);
 				}
 				moves+=1;
-				if(moves%1000==0){
-					System.out.println("move " + moves +  " taken");
-				}
-				if(board.isFull()){
-					moves+=5000;
-				}
 			}
 			if(board.scoreBoard()==Colour.WHITE) wins++;
 			games++;
+			System.out.print("passes - "+passes+" ");
 			System.out.println(wins+" / " + games);
 			board.reset();
 			moves = 0;
+			passes = 0;
 		}
 		
 		System.out.println(wins);

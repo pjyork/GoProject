@@ -14,8 +14,8 @@ public interface TreeNode {
 	int generateChildren(GoBoard goBoard);
 	void update(Colour winner);
 	Colour getWhoseTurn();
-	Child getMaxChild();
-	Child getMinChild();
+	Child getBlackChild();
+	Child getWhiteChild();
 	float getBlackValue();
 	float getWhiteValue();
 	TreeNode makeMove(int move);

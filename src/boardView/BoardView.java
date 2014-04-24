@@ -41,18 +41,20 @@ public class BoardView extends JPanel{
 	public void place(Point pos){
 		int arrayPos = getArrayPos(pos);
 		
-		if(colour==0){	
+		/*if(colour==0){	
 			if(goBoard.put(Colour.BLACK,arrayPos))colour = ++colour%2;
 			
 		}
 		else{
 			if(goBoard.put(Colour.WHITE,arrayPos))colour = ++colour%2;
 			
-		}/*
+		}*/
 		if(goBoard.put(Colour.BLACK, arrayPos)){
+			this.update();
+			repaint();
 			((GoPlayer) goPlayer).updateSearcher(arrayPos);
 			((GoPlayer) goPlayer).computerPlay();
-		}*/
+		}
 	}
 	
 	private int getArrayPos(Point pos) {

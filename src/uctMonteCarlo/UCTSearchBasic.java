@@ -1,6 +1,7 @@
 package uctMonteCarlo;
 
 import boardRep.Colour;
+import boardRep.Global;
 import boardRep.GoBoard;
 
 public class UCTSearchBasic implements UCTSearch {
@@ -24,10 +25,10 @@ public class UCTSearchBasic implements UCTSearch {
 			
 			whoseTurn = node.getWhoseTurn();
 			if(whoseTurn==Colour.BLACK){
-				child =node.getMaxChild();
+				child =node.getBlackChild();
 			}
 			else{
-				child = node.getMinChild();					
+				child = node.getWhiteChild();					
 			}
 			node = child.getNode();
 			newBoard.put(whoseTurn, child.move);
@@ -47,12 +48,12 @@ public class UCTSearchBasic implements UCTSearch {
 		}
 		if(!treeHead.isLeaf()){
 			if(whoseTurnStart==Colour.BLACK){
-				Child child = treeHead.getMaxChild();
+				Child child = treeHead.getBlackChild();
 				this.treeHead = child.node;
 				move = child.getMove();
 			}
 			else{
-				Child child = treeHead.getMinChild();
+				Child child = treeHead.getWhiteChild();
 				move = child.getMove();
 				this.treeHead = child.node;
 			}
@@ -70,6 +71,7 @@ public class UCTSearchBasic implements UCTSearch {
 	}
 	@Override
 	public void makeMove(int move) {
+		//treeHead.childPrint();
 		TreeNode candidateNode = treeHead.makeMove(move);
 		
 		if(candidateNode!=null){
@@ -89,14 +91,15 @@ public class UCTSearchBasic implements UCTSearch {
 			nodesGenerated+=treeSearch(whoseTurnStart);
 			treeSearches++;
 		}
+		//treeHead.childPrint();
 		if(!treeHead.isLeaf()){
 			if(whoseTurnStart==Colour.BLACK){
-				Child child = treeHead.getMaxChild();
+				Child child = treeHead.getBlackChild();
 				this.treeHead = child.node;
 				move = child.getMove();
 			}
 			else{
-				Child child = treeHead.getMinChild();
+				Child child = treeHead.getWhiteChild();
 				move = child.getMove();
 				this.treeHead = child.node;
 			}
@@ -111,6 +114,7 @@ public class UCTSearchBasic implements UCTSearch {
 		//System.out.println("nodes generated - " + nodesGenerated);
 		//System.out.println("time taken total - " + (System.currentTimeMillis() - timeStart));
 		//System.out.println(treeSearches + " Tree Seaches");
+		
 		return move; 
 	}
 }

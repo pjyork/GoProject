@@ -23,8 +23,7 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 		//else nextTurn = Colour.WHITE;
 		int generated = 0;
 		
-		
-		for(int i=Global.board_size+2;i<Global.array_size;i++){
+		for(int i=0;i<Global.array_size;i++){
 			if(goBoard.check(i,whoseTurn)){
 				children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(),nextTurn, this),i));
 				generated++;
@@ -62,7 +61,7 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 	}	
 	
 	@Override
-	public Child getMaxChild() {
+	public Child getBlackChild() {
 		Child currentMaxChild = children.get(0);
 		float currentMaxValue = currentMaxChild.node.getBlackValue();
 		
@@ -80,21 +79,21 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 	}
 
 	@Override
-	public Child getMinChild() {
-		Child currentMinChild = children.get(0);
-		float currentMinValue = currentMinChild.node.getWhiteValue();
+	public Child getWhiteChild() {
+		Child currentMaxChild = children.get(0);
+		float currentMaxValue = currentMaxChild.node.getWhiteValue();
 		
 		ListNode<Child> listNode = children.head;
 		while(listNode!=null){
 			Child child = listNode.data;
 			float val = child.node.getWhiteValue();
-			if(val<currentMinValue){
-				currentMinChild = child;
-				currentMinValue = val;	
+			if(val>currentMaxValue){
+				currentMaxChild = child;
+				currentMaxValue = val;	
 			}
 			listNode = listNode.next;
 		}
-		return currentMinChild;
+		return currentMaxChild;
 	}
 	
 	
@@ -104,7 +103,7 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 		String moves = "";
 		while(listNode!=null){
 			Child child = listNode.data;
-			moves = moves +"," +child.move;
+			moves = moves +"," +Global.posString(child.move);
 			listNode = listNode.next;
 		}
 		String whoseTurnString = "";

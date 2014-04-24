@@ -59,6 +59,7 @@ public class ArrayLiberties implements Liberties {
 	public ArrayLiberties clone(){
 		ArrayLiberties newLiberties = new ArrayLiberties();
 		newLiberties.liberties=this.liberties.clone();
+		newLiberties.num=this.num;
 		return newLiberties;
 		
 	}

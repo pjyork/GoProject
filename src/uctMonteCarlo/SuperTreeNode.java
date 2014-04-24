@@ -64,7 +64,10 @@ public class SuperTreeNode implements TreeNode {
 			nextTurn = Colour.BLACK;
 		}
 		
-		int generated = 0;
+		
+		children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(),nextTurn, this),0));
+		int generated = 1;
+		
 		for(int i=Global.board_size+2;i<Global.array_size;i++){
 			if(goBoard.check(i,whoseTurn)){
 				children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(), nextTurn, parent),i));
@@ -117,7 +120,7 @@ public class SuperTreeNode implements TreeNode {
 	}
 
 	@Override
-	public Child getMaxChild() {
+	public Child getBlackChild() {
 		Child currentMaxChild = children.get(0);
 		float currentMaxValue = currentMaxChild.node.getBlackValue();
 		for(int i=0;i<children.size();i++){
@@ -132,18 +135,18 @@ public class SuperTreeNode implements TreeNode {
 	}
 
 	@Override
-	public Child getMinChild() {
-		Child currentMinChild = children.get(0);
-		float currentMinValue = currentMinChild.node.getWhiteValue();
+	public Child getWhiteChild() {
+		Child currentMaxChild = children.get(0);
+		float currentMaxValue = currentMaxChild.node.getWhiteValue();
 		for(int i=0;i<children.size();i++){
 			Child child = children.get(i);
 			float val = child.node.getWhiteValue();
-			if(val<currentMinValue){
-				currentMinChild = child;
-				currentMinValue = val;				
+			if(val>currentMaxValue){
+				currentMaxChild = child;
+				currentMaxValue = val;				
 			}
 		}
-		return currentMinChild;
+		return currentMaxChild;
 	}
 
 	@Override
@@ -165,7 +168,7 @@ public class SuperTreeNode implements TreeNode {
 	public void  childPrint() {
 		for(int i=0;i<children.size();i++){
 			Child child = children.get(i);
-			System.out.println("Move - "+child.move+" ");
+			System.out.println("Move - "+Global.posString(child.move)+" ");
 			
 		}
 	}	
