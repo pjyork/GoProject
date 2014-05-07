@@ -40,6 +40,7 @@ public class GoPlayer extends JFrame{
 	protected final GoBoard goBoard;
 	protected final BoardView boardView;
 	protected final UCTSearch searcher;
+	public PlayMode playMode;
 	
 	
 	public GoPlayer(GoBoard goBoard, UCTSearch searcher){
@@ -48,14 +49,16 @@ public class GoPlayer extends JFrame{
 		
 		JPanel contentPane = new JPanel(new BorderLayout());
 		contentPane.add(BorderLayout.CENTER,boardView);
+		contentPane.add(BorderLayout.NORTH, getToolBar());
 		contentPane.requestFocusInWindow();
 		setContentPane(contentPane);
 		BoardListener bl = new BoardListener(boardView);
 		goBoard.addListener(bl);
 		this.searcher=searcher;
+		this.playMode= PlayMode.NOTPLAYING;
 	}
 	
-	private static void playDet(GoBoard board){
+	private void playDet(GoBoard board){
 		int i =0;
 		int j =0;
 		int playcount=0;
@@ -88,8 +91,39 @@ public class GoPlayer extends JFrame{
 		
 		}
 	}
+	
+	
+	protected JToolBar getToolBar() {
+		List<JButton> buttons = new ArrayList<JButton>();
+		JButton cvrButton = new JButton("CompVsRandom");		
+		new SelectPlayMode(this, PlayMode.COMPVSRANDOM, cvrButton);
+		buttons.add(cvrButton);
+		
 
-	private static void playRandom(GoBoard board, int turns){
+		JButton avuButton = new JButton("AMAFvsUCT");
+		new SelectPlayMode(this, PlayMode.AMAFVSUCT , avuButton);
+		buttons.add(avuButton);
+		
+		JButton pvcButton = new JButton("PlayVsComp");
+		new SelectPlayMode(this, PlayMode.PLAYERVSCOMP, pvcButton);
+		buttons.add(pvcButton);
+		
+		JButton evbButton = new JButton("EvaluateBoard");
+		new SelectPlayMode(this, PlayMode.EVALBOARD, evbButton);
+		buttons.add(evbButton);
+		
+		JToolBar toolBar = new JToolBar();
+		toolBar.setMargin(new Insets(10,10,10,10));
+		toolBar.add(cvrButton);
+		toolBar.add(avuButton);
+		toolBar.add(pvcButton);
+		toolBar.add(evbButton);
+		return toolBar;
+	}
+	
+	
+
+	private void playRandom(GoBoard board, int turns){
 		int i =0;
 		int j =0;
 		int playcount=0;
@@ -156,32 +190,55 @@ public class GoPlayer extends JFrame{
 		
 	}
 
-	private static void compVsRandom(GoBoard board, UCTSearch searcher) {
+	private void compVsRandom( UCTSearch searcher) {
 		int games = 0,moves=0,wins=0,passes=0;
-		while(games<50){
+		while(games<50&&playMode==PlayMode.COMPVSRANDOM){
 			MyLinkedList<Child> children = new MyLinkedList<Child>();
 			TreeNode treeHead = new MyLinkedListTreeNode(children, Colour.BLACK, null);
-			UCTSearch searcherr = new UCTSearchBasic(treeHead, board);
-			while(moves<5000&&!board.isFull()){
+			UCTSearch searcherr = new UCTSearchBasic(treeHead, goBoard);
+			while(moves<5000&&!goBoard.isFull()){
 				int blackMove = (int) ((Math.random()*(Global.array_size-1))+1);
-				if(board.put(Colour.BLACK,blackMove )){	
+				if(goBoard.put(Colour.BLACK,blackMove )){	
 					//System.out.println("black - " + blackMove);
 					searcherr.makeMove(blackMove);
 					int whiteMove = searcherr.findAMove(Colour.WHITE,(long) 500);
 					if(whiteMove==0)passes++;
-					board.put(Colour.WHITE, whiteMove);
+					goBoard.put(Colour.WHITE, whiteMove);
 				}
 				moves+=1;
 			}
-			if(board.scoreBoard()==Colour.WHITE) wins++;
+			if(goBoard.scoreBoard()==Colour.WHITE) wins++;
 			games++;
 			System.out.print("passes - "+passes+" ");
 			System.out.println(wins+" / " + games);
-			board.reset();
+			goBoard.reset();
 			moves = 0;
 			passes = 0;
 		}
 		
 		System.out.println(wins);
+	}
+
+	public void play(PlayMode playMode) {
+		this.playMode = playMode;
+		
+		switch(playMode){
+			case COMPVSRANDOM: goBoard.reset(); compVsRandom(searcher);					
+					break;
+			case PLAYERVSCOMP:	goBoard.reset();				
+					break;
+			case AMAFVSUCT: goBoard.reset(); amafVsUCT();
+					break;
+			case NOTPLAYING: goBoard.reset();
+					break;
+			case EVALBOARD: System.out.print(goBoard.scoreBoard()); goBoard.reset();
+					break;			
+		}
+		
+	}
+
+	private void amafVsUCT() {
+		// TODO Auto-generated method stub
+		
 	}
 }

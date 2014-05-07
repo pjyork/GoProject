@@ -71,6 +71,7 @@ public class GoBoard {
 		}
 		stoneNum=0;
 		strings = new StringSet();
+		notifyListeners();
 	}
 	
 	
