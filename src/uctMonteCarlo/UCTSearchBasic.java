@@ -117,4 +117,11 @@ public class UCTSearchBasic implements UCTSearch {
 		
 		return move; 
 	}
+	@Override
+	public void reset() {
+
+		MyLinkedList<Child> children = new MyLinkedList<Child>();
+		treeHead = new MyLinkedListTreeNode(children, Colour.BLACK, null);
+		
+	}
 }

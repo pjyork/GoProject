@@ -1,4 +1,4 @@
-package goPlayer;
+package goGo;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,9 +7,9 @@ import javax.swing.AbstractButton;
 
 public class SelectPlayMode implements ActionListener{
 	private PlayMode playMode;
-	private GoPlayer goPlayer;
+	private GoGo goPlayer;
 
-	public SelectPlayMode(GoPlayer goPlayer, PlayMode playMode, AbstractButton button){
+	public SelectPlayMode(GoGo goPlayer, PlayMode playMode, AbstractButton button){
 		this.goPlayer = goPlayer;
 		this.playMode = playMode;
 		button.addActionListener(this);

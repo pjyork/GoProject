@@ -10,7 +10,9 @@ public final class Global {
 		case BLACK: opponent = Colour.WHITE;
 					break;
 		case WHITE: opponent = Colour.BLACK;
-					break;	
+					break;
+		default:
+			break;	
 		}
 		return opponent;
 	}

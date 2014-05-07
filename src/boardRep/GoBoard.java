@@ -225,53 +225,100 @@ public class GoBoard {
 			e = territory[e(pos)];
 			s = territory[s(pos)];
 			w = territory[w(pos)];
-			territory[pos]=Colour.GREY;
-			if(n==Colour.EMPTY) n=territoryRec(n(pos),0);
-			if(e==Colour.EMPTY) e=territoryRec(e(pos),1);
-			if(s==Colour.EMPTY) s=territoryRec(s(pos),2);
-			if(w==Colour.EMPTY) w=territoryRec(w(pos),3);
+			territory[pos]=Colour.GREY;//here grey means undecided
+			if(n==Colour.EMPTY) n=territoryRec(n(pos));
+			if(e==Colour.EMPTY) e=territoryRec(e(pos));
+			if(s==Colour.EMPTY) s=territoryRec(s(pos));
+			if(w==Colour.EMPTY) w=territory(w(pos));
 			
-			if(n==e&&e==s&&s==w){
-				territory[pos]=n;
-				return n;
+			Colour currentColour = Colour.GREY;
+			if(e!=Colour.GREY&&e!=currentColour){
+				if(currentColour==Colour.GREY){
+					currentColour = e;
+				}
+				else{
+					currentColour = Colour.GREY;
+				}	
 			}
-		}	
-		territory[pos] = Colour.GREY;
-		return Colour.GREY;
+			if(s!=Colour.GREY&&s!=currentColour){
+				if(currentColour==Colour.GREY){
+					currentColour = s;
+				}
+				else{
+					currentColour = Colour.GREY;
+				}		
+			}
+			if(w!=Colour.GREY&&w!=currentColour){
+				if(currentColour==Colour.GREY){
+					currentColour = w;
+				}
+				else{
+					currentColour = Colour.NEUTRAL;
+				}	
+			}
+			if(currentColour==Colour.GREY) currentColour=Colour.NEUTRAL;
+			territory[pos] = currentColour;
+			floodFill(pos,currentColour);
+			return currentColour;
+			
+		}
+		return territory[pos];
 	}
 	
 	
-	private Colour territoryRec(int pos,int dir){
-		//recursive call of territory. includes a direction so you don't backtrack to empty space
-		//0 has come from south, 1 from west, 2 from north, 3 from east
-		if(territory[pos]!=Colour.GREY){
+
+	private void floodFill(int pos, Colour colour) {
+		territory[pos]=colour;
+		if(territory[n(pos)]!=colour&&board[n(pos)]==Colour.EMPTY) floodFill(n(pos),colour);
+		if(territory[e(pos)]!=colour&&board[e(pos)]==Colour.EMPTY) floodFill(e(pos),colour) ;
+		if(territory[s(pos)]!=colour&&board[s(pos)]==Colour.EMPTY) floodFill(s(pos),colour) ;
+		if(territory[w(pos)]!=colour&&board[w(pos)]==Colour.EMPTY) floodFill(w(pos),colour) ;
+	
+	}
+	private Colour territoryRec(int pos) {
+		if(territory[pos]==Colour.EMPTY){
 			Colour n,e,s,w;
 			n = territory[n(pos)];
 			e = territory[e(pos)];
 			s = territory[s(pos)];
 			w = territory[w(pos)];
-			if(n==Colour.EMPTY&&dir!=2) n=territory(n(pos));
-			if(e==Colour.EMPTY&&dir!=3) e=territory(e(pos));
-			if(s==Colour.EMPTY&&dir!=0) s=territory(s(pos));
-			if(w==Colour.EMPTY&&dir!=1) w=territory(w(pos));
+			territory[pos]=Colour.GREY;//here grey means undecided
+			if(n==Colour.EMPTY) n=territoryRec(n(pos));
+			if(e==Colour.EMPTY) e=territoryRec(e(pos));
+			if(s==Colour.EMPTY) s=territoryRec(s(pos));
+			if(w==Colour.EMPTY) w=territory(w(pos));
 			
-			switch (dir) {
-	        case 0:  s=n;
-	                 break;
-	        case 1:  w=n;
-	                 break;
-	        case 2:  n=s;
-	                 break;
-	        case 3:  e=n;
-	                 break;
-	        default: break;
-	    }
+			Colour currentColour = Colour.GREY;
+			if(n!=Colour.GREY) currentColour = n;
+			if(e!=Colour.GREY&&e!=currentColour){
+				if(currentColour==Colour.GREY){
+					currentColour = e;
+				}
+				else{
+					currentColour = Colour.NEUTRAL;
+				}	
+			}
+			if(s!=Colour.GREY&&s!=currentColour){
+				if(currentColour==Colour.GREY){
+					currentColour = s;
+				}
+				else{
+					currentColour = Colour.NEUTRAL;
+				}		
+			}
+			if(w!=Colour.GREY&&w!=currentColour){
+				if(currentColour==Colour.GREY){
+					currentColour = w;
+				}
+				else{
+					currentColour = Colour.NEUTRAL;
+				}	
+			}
+			territory[pos] = currentColour;
+			return currentColour;
 			
-			if(n==e&&e==s&&s==w){
-				return n;
-			}	
 		}
-		return Colour.GREY;
+		return territory[pos];
 	}
 	public Colour scoreBoard(){
 		int w = 0;

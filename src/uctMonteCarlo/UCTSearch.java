@@ -7,4 +7,5 @@ public interface UCTSearch {
 	public int findAMove(Colour whoseTurnStart, long timeInMillis);
 
 	public void makeMove(int move);
+	public void reset();
 }

@@ -1,7 +1,7 @@
 package boardView;
 
-import goPlayer.GoPlayer;
-import goPlayer.PlayMode;
+import goGo.GoGo;
+import goGo.PlayMode;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -24,39 +24,41 @@ import boardRep.Global;
 import boardRep.GoBoard;
 
 public class BoardView extends JPanel{
-	protected final JFrame goPlayer;
+	protected final JFrame goGo;
 	private final int size = Global.board_size; //determines the dimensions of the board
 	protected final GoBoard goBoard;
 	private final int border = 20;
 	private GoMouseListener mouse;
 	private int colour = 0;
 	
-	public BoardView(GoPlayer goPlayer,GoBoard goBoard){
+	public BoardView(GoGo goPlayer,GoBoard goBoard){
 		
-		this.goPlayer=goPlayer;
+		this.goGo=goPlayer;
 		this.goBoard=goBoard;
 		mouse = new GoMouseListener(this);
 		addMouseListener(mouse);
 	}
 	
 	public void place(Point pos){
-		if(((GoPlayer) goPlayer).playMode == PlayMode.PLAYERVSCOMP){
-			int arrayPos = getArrayPos(pos);
-			
-			
-			/*if(colour==0){	
-				if(goBoard.put(Colour.BLACK,arrayPos))colour = ++colour%2;
+		int arrayPos = getArrayPos(pos);	
+		if(((GoGo) goGo).playMode == PlayMode.PLAYERVSCOMP){
 				
+			
+			
+			if(goBoard.put(Colour.BLACK, arrayPos)){
+				this.update();
+				repaint();
+				((GoGo) goGo).updateSearcher(arrayPos);
+				((GoGo) goGo).computerPlay();
+			}
+		}
+		else if(((GoGo) goGo).playMode == PlayMode.PLAYERVSPLAYER){
+			if(colour==0){	
+				if(goBoard.put(Colour.BLACK,arrayPos))colour = ++colour%2;			
 			}
 			else{
 				if(goBoard.put(Colour.WHITE,arrayPos))colour = ++colour%2;
 				
-			}*/
-			if(goBoard.put(Colour.BLACK, arrayPos)){
-				this.update();
-				repaint();
-				((GoPlayer) goPlayer).updateSearcher(arrayPos);
-				((GoPlayer) goPlayer).computerPlay();
 			}
 		}
 	}
