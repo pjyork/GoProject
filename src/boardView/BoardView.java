@@ -8,15 +8,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import boardRep.Colour;
 import boardRep.Global;
@@ -41,14 +34,14 @@ public class BoardView extends JPanel{
 	
 	public void place(Point pos){
 		int arrayPos = getArrayPos(pos);	
-		if(((GoGo) goGo).playMode == PlayMode.PLAYERVSCOMP){
+		if(((GoGo) goGo).playMode == PlayMode.PLAYERVSBASIC||((GoGo) goGo).playMode == PlayMode.PLAYERVSAMAF){
 				
 			
 			
 			if(goBoard.put(Colour.BLACK, arrayPos)){
 				this.update();
 				repaint();
-				((GoGo) goGo).updateSearcher(arrayPos);
+				((GoGo) goGo).updateSearcher(arrayPos,Colour.BLACK);
 				((GoGo) goGo).computerPlay();
 			}
 		}

@@ -1,6 +1,6 @@
 package uctMonteCarlo;
 
-import java.util.List;
+import java.util.LinkedList;
 
 import boardRep.Colour;
 import boardRep.Global;
@@ -10,13 +10,13 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 	
 	MyLinkedList<Child> children;
 	
-	public MyLinkedListTreeNode(MyLinkedList<Child> children,Colour whoseTurn, TreeNode parent) {
-		super(children,whoseTurn, parent);
+	public MyLinkedListTreeNode(MyLinkedList<Child> children,Colour whoseTurn, TreeNode parent,int move) {
+		super(children,whoseTurn, parent, move);
 		this.children=children;
 	}
 	
 	@Override
-	public int generateChildren(GoBoard goBoard) {
+	public int generateChildren(GoBoard goBoard,UpdateType updateType) {
 		Colour nextTurn = Colour.GREY;
 		nextTurn = Global.opponent(super.whoseTurn);
 		//if(super.whoseTurn==Colour.WHITE) nextTurn=Colour.BLACK;
@@ -25,7 +25,7 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 		
 		for(int i=0;i<Global.array_size;i++){
 			if(goBoard.check(i,whoseTurn)){
-				children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(),nextTurn, this),i));
+				children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(),nextTurn, this, i),i));
 				generated++;
 			}
 		}
@@ -40,7 +40,8 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 				GoBoard newBoard = goBoard.clone();
 				newBoard.put(whoseTurn, child.getMove());
 				Colour winner = newBoard.randomPlayout(Global.opponent(whoseTurn));
-				child.node.update(winner);			
+				child.node.update(winner);
+				child.node.amafUpdate(winner, new LinkedList<Integer>());
 				listNode=listNode.next;
 			}
 		}
@@ -60,7 +61,7 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 		return node;
 	}	
 	
-	@Override
+	/*	@Override
 	public Child getBlackChild() {
 		Child currentMaxChild = children.get(0);
 		float currentMaxValue = currentMaxChild.node.getBlackValue();
@@ -95,7 +96,7 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 		}
 		return currentMaxChild;
 	}
-	
+	*/
 	
 	@Override
 	public void  childPrint() {		
@@ -111,5 +112,7 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 		else whoseTurnString = "Black";
 		System.out.println(whoseTurnString+" moves - "+moves);
 	}
+	
+	
 	
 }

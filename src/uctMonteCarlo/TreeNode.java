@@ -11,14 +11,19 @@ public interface TreeNode {
 	int getNumberOfTrials();// get the number of times this node has been played out
 	float getValue();//get the % of the time which you win from this position
 	boolean isLeaf();//returns whether the node is a leaf (does it have any children yet)
-	int generateChildren(GoBoard goBoard);
-	void update(Colour winner);
+	
+	void update(Colour winner);//updates a node and propagates the update back to the tree head
+	void amafUpdate(Colour winner, List<Integer> moves);//updates a node and propagates the update using AMAF to the head
+	void singleUpdate(Colour winner);//updates just the node, and doesn't propagate. used in amafupdate
+	
 	Colour getWhoseTurn();
-	Child getBlackChild();
-	Child getWhiteChild();
-	float getBlackValue();
-	float getWhiteValue();
+	
+	Child getChild(UpdateType updateType, Colour colour);
+	
+	float getValue(UpdateType updateType, Colour colour);
+	
 	TreeNode makeMove(int move);
 	void detach();
 	void childPrint();
+	int generateChildren(GoBoard goBoard, UpdateType updateType);
 }

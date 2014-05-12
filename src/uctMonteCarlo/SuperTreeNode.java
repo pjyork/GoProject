@@ -1,5 +1,6 @@
 package uctMonteCarlo;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import boardRep.Colour;
@@ -9,17 +10,28 @@ import boardRep.GoBoard;
 public class SuperTreeNode implements TreeNode {
 	protected TreeNode parent;
 	List<Child> children;
+	
 	private int numberOfTrials;
 	private float expectedWins;
 	private float uncertainty;
 	private float expectedWinsSquaredSum;
+	
+	private int amafNumberOfTrials;
+	private float amafExpectedWins;
+	private float amafUncertainty;
+	private float amafExpectedWinsSquaredSum;
+	
+	private int moveMadeToGetHere;
+	
+	public int raveParam=1000;
 	Colour whoseTurn;	
 
 	
-	public SuperTreeNode(List<Child> children, Colour whoseTurn, TreeNode parent){
+	public SuperTreeNode(List<Child> children, Colour whoseTurn, TreeNode parent, int move){
 		this.children = children;
 		this.whoseTurn = whoseTurn;
 		this.parent = parent;
+		this.moveMadeToGetHere=move;
 	}
 	public SuperTreeNode(Colour whoseTurn){
 		this.whoseTurn=whoseTurn;
@@ -55,7 +67,7 @@ public class SuperTreeNode implements TreeNode {
 	}
 
 	@Override
-	public int generateChildren(GoBoard goBoard) {
+	public int generateChildren(GoBoard goBoard, UpdateType updateType) {
 		Colour nextTurn = Colour.GREY;
 		if(whoseTurn==Colour.BLACK){
 			nextTurn = Colour.WHITE;
@@ -65,29 +77,34 @@ public class SuperTreeNode implements TreeNode {
 		}
 		
 		
-		children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(),nextTurn, this),0));
+		children.add(new Child(new LinkedListTreeNode(new LinkedList<Child>(),nextTurn, this,0),0));
 		int generated = 1;
 		
 		for(int i=Global.board_size+2;i<Global.array_size;i++){
 			if(goBoard.check(i,whoseTurn)){
-				children.add(new Child(new MyLinkedListTreeNode(new MyLinkedList<Child>(), nextTurn, parent),i));
+				children.add(new Child(new LinkedListTreeNode(new LinkedList<Child>(), nextTurn, this,i),i));
 				generated++;
 			}
 		}
-		playAllChildrenOnce(goBoard);
+		playAllChildrenOnce(goBoard, updateType);
 		return generated;
 	}
-	private void playAllChildrenOnce(GoBoard goBoard){
+	private void playAllChildrenOnce(GoBoard goBoard, UpdateType updateType){
 		for(int i=0;i<children.size();i++){
 			GoBoard newBoard = goBoard.clone();
 			Child child = children.get(i);
 			newBoard.put(whoseTurn, child.getMove());
 			Colour winner = newBoard.randomPlayout(Global.opponent(whoseTurn));
-			child.node.update(winner);
+			switch(updateType){
+				case BASIC: child.node.update(winner); break;
+				case AMAF: child.node.amafUpdate(winner, new LinkedList<Integer>()); break;
+				case RAVE: child.node.amafUpdate(winner, new LinkedList<Integer>());
+							child.node.update(winner); break;
+			}
 		}
 		
 	}
-
+	
 	@Override
 	public void update(Colour winner) {
 				if(parent!=null){ 
@@ -107,48 +124,10 @@ public class SuperTreeNode implements TreeNode {
 				else numberOfTrials++;
 	}
 
-	private TreeNode getTreeHead() {
-		TreeNode node = this;
-		while(node.parent!=null){
-			node = node.parent;
-		}
-		return node;
-	}
 	@Override
 	public Colour getWhoseTurn() { 
 		return whoseTurn;
 	}
-
-	@Override
-	public Child getBlackChild() {
-		Child currentMaxChild = children.get(0);
-		float currentMaxValue = currentMaxChild.node.getBlackValue();
-		for(int i=0;i<children.size();i++){
-			Child child = children.get(i);
-			float val = child.node.getBlackValue();
-			if(val >currentMaxValue){
-				currentMaxChild = child;
-				currentMaxValue = val;				
-			}
-		}
-		return currentMaxChild;
-	}
-
-	@Override
-	public Child getWhiteChild() {
-		Child currentMaxChild = children.get(0);
-		float currentMaxValue = currentMaxChild.node.getWhiteValue();
-		for(int i=0;i<children.size();i++){
-			Child child = children.get(i);
-			float val = child.node.getWhiteValue();
-			if(val>currentMaxValue){
-				currentMaxChild = child;
-				currentMaxValue = val;				
-			}
-		}
-		return currentMaxChild;
-	}
-
 	@Override
 	public TreeNode makeMove(int move) {
 		TreeNode node = null;
@@ -171,5 +150,93 @@ public class SuperTreeNode implements TreeNode {
 			System.out.println("Move - "+Global.posString(child.move)+" ");
 			
 		}
-	}	
+	}
+	@Override
+	public void amafUpdate(Colour winner, List<Integer> moves) {
+		if(parent!=null){ 
+			moves.add(moveMadeToGetHere);
+			parent.amafUpdate(winner,moves);	
+			if(winner==Colour.BLACK)amafExpectedWins=((amafExpectedWins*amafNumberOfTrials)+1)/(amafNumberOfTrials+1);
+			else amafExpectedWins = (amafExpectedWins*amafNumberOfTrials)/(amafNumberOfTrials+1);
+
+			expectedWinsSquaredSum = ((amafExpectedWinsSquaredSum*amafNumberOfTrials)+amafExpectedWins*amafExpectedWins)/(amafNumberOfTrials+1);
+			amafNumberOfTrials++;
+			int n = 1;
+			
+			float logN = (float) Math.log(n);
+			float v =(float) (amafExpectedWinsSquaredSum - (amafExpectedWins*amafExpectedWins) + Math.sqrt(logN/amafNumberOfTrials));
+			float multiplier = Math.min((float)(0.25), v);
+			amafUncertainty = (float) Math.sqrt((logN/amafNumberOfTrials)*multiplier);
+			
+		}
+		else numberOfTrials++;
+		for(int i=0;i<children.size();i++){
+			for(int j=0;j<moves.size()-1;j++){
+				Child child = children.get(i);
+				if(children.get(i).move==moves.get(j)){
+					child.getNode().singleUpdate(winner);
+				}
+			}
+			
+		}
+		
+	}
+	@Override
+	public void singleUpdate(Colour winner) {
+		if(winner==Colour.BLACK)amafExpectedWins=((amafExpectedWins*amafNumberOfTrials)+1)/(amafNumberOfTrials+1);
+		else amafExpectedWins = (amafExpectedWins*amafNumberOfTrials)/(amafNumberOfTrials+1);
+
+		expectedWinsSquaredSum = ((amafExpectedWinsSquaredSum*amafNumberOfTrials)+amafExpectedWins*amafExpectedWins)/(amafNumberOfTrials+1);
+		amafNumberOfTrials++;
+		int n = 1;
+		
+		float logN = (float) Math.log(n);
+		float v =(float) (amafExpectedWinsSquaredSum - (amafExpectedWins*amafExpectedWins) + Math.sqrt(logN/amafNumberOfTrials));
+		float multiplier = Math.min((float)(0.25), v);
+		amafUncertainty = (float) Math.sqrt((logN/amafNumberOfTrials)*multiplier);
+	}
+
+
+	
+
+	
+	public Child getChild(UpdateType updateType, Colour colour){
+		Child currentMaxChild = children.get(0);	
+		float currentMaxValue = 0;
+		
+	
+		
+		for(int i=0;i<children.size();i++){
+			Child child = children.get(i);
+			float val = child.node.getValue(updateType,colour);
+			if(val >currentMaxValue){
+				currentMaxChild = child;
+				currentMaxValue = val;				
+			}
+		}
+		return currentMaxChild;
+	}
+	
+	@Override
+	public float getValue(UpdateType updateType, Colour colour) {
+		float v1=0,u1=0,v2=0,u2=0,alpha = 0;
+		switch (updateType){
+		case AMAF: v1 = amafExpectedWins; u1 = amafUncertainty;
+			break;
+		case BASIC: v1 = expectedWins; u1 = uncertainty;v2=0;u2=0;
+			break;
+		case RAVE: v1 = expectedWins; u1 = uncertainty;v2 = amafExpectedWins; u2 = amafUncertainty; 
+					alpha = ((float)(raveParam-numberOfTrials))/(float)raveParam;
+			break;
+		default:
+			break;
+		
+		}
+		if(colour==Colour.WHITE){
+			return (1-alpha)*((1-v1)+u1) + alpha*((1-v2)+u2); 
+		}
+		else{
+			return (1-alpha)*((v1)+u1) + alpha*((v2)+u2); 
+		}
+	}
 }

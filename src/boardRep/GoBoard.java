@@ -4,9 +4,7 @@ import java.util.LinkedList;
 
 public class GoBoard {
 	private int board_size=Global.board_size;
-	private int max_strings;
-
-//	enum PosState{ grey, white, black, empty};// for a given board position is it black, white, empty or edge (grey)
+	
 	private Colour board[] = new Colour[Global.array_size];//we want a border of 'edge' positions so +2
 												// using a 1D array is useful because using single dimensional coordinates
 												// makes function calls etc. less expensive
@@ -30,10 +28,6 @@ public class GoBoard {
 	private int s(int pos){return (pos+up)%Global.array_size;}//return the 1D coord directly below pos
 	private int w(int pos){return pos-1;}//return the 1D coord directly left of pos
 	private int e(int pos){return (pos+1)%Global.array_size;}//return the 1D coord directly right of pos
-	private int nw(int pos){return pos-up-1;}//return the 1D coord above and to the left of pos
-	private int ne(int pos){return pos-up+1;}//return the 1D coord above and to the right of pos
-	private int sw(int pos){return pos+up-1;}//return the 1D coord below and to the left of pos
-	private int se(int pos){return pos+up+1;}//return the 1D coord below and to the right of pos
 	
 	
 	public GoBoard(){
@@ -197,9 +191,7 @@ public class GoBoard {
 	public boolean isFull(){
 		return stoneNum>=Global.board_size*Global.board_size;
 	}
-	private void classifyEyespace(){//working out which areas are eyespaces and who they belong to
-		
-	}
+	
 	public Colour getColour(int pos){
 		return board[pos];
 	}
@@ -219,7 +211,7 @@ public class GoBoard {
 	}
 	
 	private Colour territory(int pos){
-		if(territory[pos]==Colour.EMPTY){
+		if(territory[pos]==Colour.EMPTY&&board[pos]==Colour.EMPTY){
 			Colour n,e,s,w;
 			n = territory[n(pos)];
 			e = territory[e(pos)];
@@ -229,7 +221,7 @@ public class GoBoard {
 			if(n==Colour.EMPTY) n=territoryRec(n(pos));
 			if(e==Colour.EMPTY) e=territoryRec(e(pos));
 			if(s==Colour.EMPTY) s=territoryRec(s(pos));
-			if(w==Colour.EMPTY) w=territory(w(pos));
+			if(w==Colour.EMPTY) w=territoryRec(w(pos));
 			
 			Colour currentColour = Colour.GREY;
 			if(e!=Colour.GREY&&e!=currentColour){
@@ -237,7 +229,7 @@ public class GoBoard {
 					currentColour = e;
 				}
 				else{
-					currentColour = Colour.GREY;
+					currentColour = Colour.NEUTRAL;
 				}	
 			}
 			if(s!=Colour.GREY&&s!=currentColour){
@@ -245,7 +237,7 @@ public class GoBoard {
 					currentColour = s;
 				}
 				else{
-					currentColour = Colour.GREY;
+					currentColour = Colour.NEUTRAL;
 				}		
 			}
 			if(w!=Colour.GREY&&w!=currentColour){
@@ -276,7 +268,7 @@ public class GoBoard {
 	
 	}
 	private Colour territoryRec(int pos) {
-		if(territory[pos]==Colour.EMPTY){
+		if(territory[pos]==Colour.EMPTY&&board[pos]==Colour.EMPTY){
 			Colour n,e,s,w;
 			n = territory[n(pos)];
 			e = territory[e(pos)];
@@ -286,7 +278,7 @@ public class GoBoard {
 			if(n==Colour.EMPTY) n=territoryRec(n(pos));
 			if(e==Colour.EMPTY) e=territoryRec(e(pos));
 			if(s==Colour.EMPTY) s=territoryRec(s(pos));
-			if(w==Colour.EMPTY) w=territory(w(pos));
+			if(w==Colour.EMPTY) w=territoryRec(w(pos));
 			
 			Colour currentColour = Colour.GREY;
 			if(n!=Colour.GREY) currentColour = n;
@@ -314,7 +306,13 @@ public class GoBoard {
 					currentColour = Colour.NEUTRAL;
 				}	
 			}
-			territory[pos] = currentColour;
+			if((currentColour==Colour.BLACK||currentColour==Colour.WHITE||currentColour==Colour.NEUTRAL)){
+				int i =0;
+				if(currentColour==Colour.NEUTRAL){
+					int k = i;
+				}
+				int j = i;
+			}
 			return currentColour;
 			
 		}
@@ -335,6 +333,8 @@ public class GoBoard {
 				}
 			}
 		}
+		//System.out.println("White - " +w);
+		//System.out.println("  Black  - " +b);
 		if(w>b) return Colour.WHITE;
 		else if(w==b) return Colour.GREY;
 		else return Colour.BLACK;
