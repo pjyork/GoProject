@@ -1,5 +1,6 @@
 package uctMonteCarlo;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,7 +8,11 @@ import boardRep.Colour;
 import boardRep.Global;
 import boardRep.GoBoard;
 
-public class SuperTreeNode implements TreeNode {
+public class SuperTreeNode implements TreeNode, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6460876416781555954L;
 	protected TreeNode parent;
 	List<Child> children;
 	
@@ -23,7 +28,10 @@ public class SuperTreeNode implements TreeNode {
 	
 	private int moveMadeToGetHere;
 	
-	public int raveParam=1000;
+	long averageUpdateTime = 0,averagePlayoutTime=0;
+	int updates=0,playouts=0;
+	
+	public int raveParam=5000;
 	Colour whoseTurn;	
 
 	
@@ -94,13 +102,21 @@ public class SuperTreeNode implements TreeNode {
 			GoBoard newBoard = goBoard.clone();
 			Child child = children.get(i);
 			newBoard.put(whoseTurn, child.getMove());
+			long randomStart = 0;
+			randomStart = System.currentTimeMillis()-randomStart;
 			Colour winner = newBoard.randomPlayout(Global.opponent(whoseTurn));
+			averagePlayoutTime= (averagePlayoutTime*playouts+randomStart)/(playouts+1);
+			playouts++;
+			long start = System.currentTimeMillis();
 			switch(updateType){
 				case BASIC: child.node.update(winner); break;
 				case AMAF: child.node.amafUpdate(winner, new LinkedList<Integer>()); break;
 				case RAVE: child.node.amafUpdate(winner, new LinkedList<Integer>());
 							child.node.update(winner); break;
 			}
+			start = System.currentTimeMillis()-start;
+			averageUpdateTime = (averageUpdateTime*updates+start)/(updates+1);
+			updates++;
 		}
 		
 	}
@@ -238,5 +254,9 @@ public class SuperTreeNode implements TreeNode {
 		else{
 			return (1-alpha)*((v1)+u1) + alpha*((v2)+u2); 
 		}
+	}
+	@Override
+	public void printProfiling() {
+		System.out.println("average update time - " + averageUpdateTime);
 	}
 }

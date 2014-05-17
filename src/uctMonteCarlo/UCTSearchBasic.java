@@ -1,5 +1,11 @@
 package uctMonteCarlo;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.LinkedList;
 
 import boardRep.Colour;
@@ -11,6 +17,8 @@ public class UCTSearchBasic implements UCTSearch {
 	int totalNumberOfTrials;
 	GoBoard goBoard;
 	UpdateType updateType;
+	long avgSearchTime = 0;
+	int searches = 0;
 	
 	public UCTSearchBasic(TreeNode treeHead, GoBoard goBoard,UpdateType updateType){
 		this.updateType = updateType;
@@ -25,13 +33,16 @@ public class UCTSearchBasic implements UCTSearch {
 		TreeNode node = treeHead;
 		Colour whoseTurn = whoseTurnStart;
 		Child child = null;
-		while(!node.isLeaf()){			
-			
+		long start = System.currentTimeMillis();
+		while(!node.isLeaf()){	
 			whoseTurn = node.getWhoseTurn();
 			child =node.getChild(updateType,whoseTurn);
 			node = child.getNode();
 			newBoard.put(whoseTurn, child.move);
 		}
+		start = System.currentTimeMillis()-start;
+		avgSearchTime = (avgSearchTime*searches+start)/(searches+1);
+		searches++;
 		return node.generateChildren(newBoard,updateType);
 		
 	}
@@ -79,7 +90,9 @@ public class UCTSearchBasic implements UCTSearch {
 		if(treeHead.getChildren().size()>1){
 			while(System.currentTimeMillis()-timeStart<timeInMillis){
 				nodesGenerated+=treeSearch(whoseTurnStart);
+				
 				treeSearches++;
+				
 			}
 		}
 		//treeHead.childPrint();
@@ -109,6 +122,40 @@ public class UCTSearchBasic implements UCTSearch {
 		LinkedList<Child> children = new LinkedList<Child>();
 		treeHead = new LinkedListTreeNode(children, Colour.BLACK, null,0);
 		treeHead.generateChildren(goBoard, updateType);
+		
+	}
+	
+	public void saveTree() throws IOException{
+		long timeStart = System.currentTimeMillis();
+		while(System.currentTimeMillis()-timeStart<60000)treeSearch(Colour.BLACK);
+		try {
+            /* Create the output stream */
+			FileOutputStream ostream = new FileOutputStream("C:\\Users\\Peter\\git\\go\\MC-UDT Go\\src\\tree.sav");
+            ObjectOutputStream p = new ObjectOutputStream(ostream);
+            SuperTreeNode treeHead1 = (SuperTreeNode) treeHead;
+            p.writeObject(treeHead1); // Write the tree to the stream.
+            p.flush();
+            ostream.close();    // close the file.
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+	}
+	@Override
+	public void loadTree() throws FileNotFoundException {
+		FileInputStream istream = new FileInputStream("C:\\Users\\Peter\\git\\go\\MC-UDT Go\\src\\tree.sav");
+		try {
+            ObjectInputStream in = new ObjectInputStream(istream);
+            treeHead = (SuperTreeNode) in.readObject();
+            istream.close();    // close the file.
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+		
+	}
+	@Override
+	public void printProfiling() {
+		System.out.println("average treeSearch - " + avgSearchTime);
+		treeHead.printProfiling();
 		
 	}
 }

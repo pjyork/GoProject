@@ -1,4 +1,6 @@
 package goPlayer;
+import java.io.FileNotFoundException;
+
 import uctMonteCarlo.*;
 import boardRep.Colour;
 
@@ -30,6 +32,22 @@ public class UctPlayer implements GoPlayer{
 	
 	public void resetSearcher(){
 		searcher.reset();
+	}
+
+	@Override
+	public void loadTree() {
+		try {
+			searcher.loadTree();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+
+	@Override
+	public void printProfiling() {
+		searcher.printProfiling();
+		
 	}
 	
 }

@@ -23,5 +23,15 @@ public class RandomPlayer implements GoPlayer {
 	@Override
 	public void resetSearcher() {
 	}
+
+	@Override
+	public void loadTree() {		
+	}
+
+	@Override
+	public void printProfiling() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

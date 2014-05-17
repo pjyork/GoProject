@@ -1,6 +1,8 @@
 package uctMonteCarlo;
 
-public class Child {
+import java.io.Serializable;
+
+public class Child implements Serializable{
 	TreeNode node;
 	int move;
 	

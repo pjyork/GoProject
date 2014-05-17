@@ -1,11 +1,12 @@
 package uctMonteCarlo;
 
+import java.io.Serializable;
 import java.util.List;
 
 import boardRep.Colour;
 import boardRep.GoBoard;
 
-public interface TreeNode {
+public interface TreeNode extends Serializable {
 	TreeNode parent = null;
 	List<Child> getChildren();// get a list of the node's children
 	int getNumberOfTrials();// get the number of times this node has been played out
@@ -26,4 +27,5 @@ public interface TreeNode {
 	void detach();
 	void childPrint();
 	int generateChildren(GoBoard goBoard, UpdateType updateType);
+	void printProfiling();
 }

@@ -5,4 +5,6 @@ public interface GoPlayer {
 	public int findMoveIter();
 	public void notifyOpponentsMove(int move);
 	public void resetSearcher();
+	public void loadTree();
+	public void printProfiling();
 }
