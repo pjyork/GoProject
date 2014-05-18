@@ -251,7 +251,7 @@ public class SuperTreeNode implements TreeNode, Serializable {
 		case BASIC: v1 = expectedWins; u1 = uncertainty;v2=0;u2=0;
 			break;
 		case RAVE: v1 = expectedWins; u1 = uncertainty;v2 = amafExpectedWins; u2 = amafUncertainty; 
-					alpha = ((float)(raveParam-numberOfTrials))/(float)raveParam;
+					alpha = Math.max(((float)(raveParam-numberOfTrials))/(float)raveParam,0);
 			break;
 		default:
 			break;

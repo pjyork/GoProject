@@ -81,6 +81,10 @@ public class GoGo extends JFrame{
 		new SelectPlayMode(this, PlayMode.PLAYERVSAMAF, pvaButton);
 		buttons.add(pvaButton);
 		
+		JButton rvaButton = new JButton("RvA");
+		new SelectPlayMode(this, PlayMode.AMAFVSRAVE, rvaButton);
+		buttons.add(rvaButton);
+		
 		JButton pvpButton = new JButton("PvP");
 		new SelectPlayMode(this, PlayMode.PLAYERVSPLAYER, pvpButton);
 		buttons.add(pvpButton);
@@ -105,6 +109,7 @@ public class GoGo extends JFrame{
 		toolBar.setMargin(new Insets(10,10,10,10));
 		toolBar.add(cvrButton);
 		toolBar.add(avuButton);
+		toolBar.add(rvaButton);
 		toolBar.add(rvuButton);
 		toolBar.add(pvbButton);
 		toolBar.add(pvcButton);
@@ -192,6 +197,7 @@ public class GoGo extends JFrame{
 		switch(playMode){			
 			case COMPVSRANDOM: goBoard.reset();
 					whitePlayer = new UctPlayer(new UCTSearchBasic(treeHead, goBoard,UpdateType.BASIC), (long) 500, 900, Colour.WHITE);
+					whitePlayer.loadTree();
 					blackPlayer = new RandomPlayer();
 					compVsRandom();
 					break;
@@ -202,11 +208,15 @@ public class GoGo extends JFrame{
 			case AMAFVSUCT: goBoard.reset(); 
 							blackPlayer = new UctPlayer(new UCTSearchBasic(treeHead, goBoard,UpdateType.BASIC), (long) 500, 100, Colour.BLACK);
 							whitePlayer = new UctPlayer(new UCTSearchBasic(treeHead1, goBoard,UpdateType.AMAF), (long) 500, 100, Colour.WHITE);
+							blackPlayer.loadTree();
+							whitePlayer.loadTree();
 							compVsComp(150);
 					break;
 			case RAVEVSUCT: goBoard.reset(); 
 							blackPlayer = new UctPlayer(new UCTSearchBasic(treeHead, goBoard,UpdateType.BASIC), (long) 500, 100, Colour.BLACK);
 							whitePlayer = new UctPlayer(new UCTSearchBasic(treeHead1, goBoard,UpdateType.RAVE), (long) 500, 100, Colour.WHITE);
+							blackPlayer.loadTree();
+							whitePlayer.loadTree();
 							compVsComp(150);
 					break;
 			case NOTPLAYING: goBoard.reset();
@@ -225,11 +235,17 @@ public class GoGo extends JFrame{
 					whitePlayer = new UctPlayer(new UCTSearchBasic(treeHead1, goBoard,UpdateType.AMAF), (long) 5000, 900, Colour.WHITE);
 					whitePlayer.loadTree();
 					break;
+			case AMAFVSRAVE:	goBoard.reset();
+							blackPlayer = new UctPlayer(new UCTSearchBasic(treeHead, goBoard,UpdateType.AMAF), (long) 500, 100, Colour.BLACK);
+							whitePlayer = new UctPlayer(new UCTSearchBasic(treeHead1, goBoard,UpdateType.RAVE), (long) 500, 100, Colour.WHITE);
+							blackPlayer.loadTree();
+							whitePlayer.loadTree();
+							compVsComp(150);
+							break;
+				
 			case RANDOMPLAYOUTS: whitePlayer = new RandomPlayer(); blackPlayer = new RandomPlayer();
 					randomPlayouts();
-					break;			
-		default:
-			break;
+					break;
 		}
 		
 	}
@@ -254,11 +270,12 @@ public class GoGo extends JFrame{
 
 
 	private void compVsComp(int tGames) {
-		int games = 0,moves=0,whiteWins=0,wpasses=0,bpasses=0,blackWins=0;
-		while(games<tGames&&(playMode==PlayMode.AMAFVSUCT||playMode==PlayMode.RAVEVSUCT||playMode==PlayMode.PRELOADEDVSBASIC)){
+		int games = 0,moves=0,whiteWins=0,wpasses=0,bpasses=0,blackWins=0,notpasses=0;
+		while(games<tGames&&(playMode==PlayMode.AMAFVSUCT||playMode==PlayMode.RAVEVSUCT||playMode==PlayMode.PRELOADEDVSBASIC||playMode==PlayMode.AMAFVSRAVE)){
 			while(moves<350&&!goBoard.isFull()){
 				int blackMove = blackPlayer.findMoveTime();
 				if(blackMove==0) bpasses++;
+				else notpasses++;
 				if(goBoard.put(Colour.BLACK,blackMove)){	
 					//System.out.println("black - " + blackMove);
 					whitePlayer.notifyOpponentsMove(blackMove);
@@ -270,12 +287,12 @@ public class GoGo extends JFrame{
 							System.out.print("game passed ");
 						}
 					}
+					else notpasses++;
 					
 					goBoard.put(Colour.WHITE, whiteMove);
 					blackPlayer.notifyOpponentsMove(whiteMove);
 				}
 				moves+=1;
-				if(moves%100==0) System.out.println("moves taken - " + moves);
 			}
 			Colour winner = goBoard.scoreBoard();
 			if(winner==Colour.WHITE)whiteWins++;
@@ -283,20 +300,24 @@ public class GoGo extends JFrame{
 			games++;
 			whitePlayer.resetSearcher();
 			blackPlayer.resetSearcher();
-			if(playMode==PlayMode.AMAFVSUCT)System.out.print("AMAF-w BASIC-b");
-			else if(playMode==PlayMode.RAVEVSUCT) System.out.print("RAVE-w BASIC-b");
-			else if (playMode==PlayMode.PRELOADEDVSBASIC){
-				System.out.print("PRE - w BASIC - b ");
-				whitePlayer.loadTree();
+			whitePlayer.loadTree();
+			blackPlayer.loadTree();
+			if(playMode==PlayMode.AMAFVSUCT)System.out.println("AMAF-w BASIC-b  ");
+			else if(playMode==PlayMode.RAVEVSUCT) System.out.println("RAVE-w BASIC-b  ");
+			else if(playMode==PlayMode.PRELOADEDVSBASIC){
+				System.out.println("PRE - w BASIC - b  ");
+				blackPlayer.resetSearcher();
 			}
+			else if(playMode==PlayMode.AMAFVSRAVE) System.out.println("RAVE-w AMAF-b  ");
 
-			System.out.println("wpasses -  " + wpasses + "bpasses - " + bpasses);
+			
+			System.out.println("wpasses -  " + wpasses + "  bpasses - " + bpasses + " notpasses -" +notpasses);
 			System.out.print("white - " +whiteWins);
 			System.out.print("   black - " +blackWins);
 			System.out.println("   games - " + games);
 			goBoard.reset();
 			moves = 0;
-			wpasses = 0;bpasses=0;
+			wpasses = 0;bpasses=0;notpasses=0;
 		}
 
 		whitePlayer.printProfiling();

@@ -113,7 +113,10 @@ public class UCTSearchBasic implements UCTSearch {
 		//System.out.println("nodes generated - " + nodesGenerated);
 		//System.out.println("time taken total - " + (System.currentTimeMillis() - timeStart));
 		//System.out.println(treeSearches + " Tree Seaches");
-		
+		if(move==0){
+			move++;
+			move--;
+		}
 		return move; 
 	}
 	@Override
