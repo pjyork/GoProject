@@ -127,7 +127,7 @@ public class UCTSearchBasic implements UCTSearch {
 	
 	public void saveTree() throws IOException{
 		long timeStart = System.currentTimeMillis();
-		while(System.currentTimeMillis()-timeStart<60000)treeSearch(Colour.BLACK);
+		while(System.currentTimeMillis()-timeStart<420000)treeSearch(Colour.BLACK);
 		try {
             /* Create the output stream */
 			FileOutputStream ostream = new FileOutputStream("C:\\Users\\Peter\\git\\go\\MC-UDT Go\\src\\tree.sav");

@@ -1,6 +1,7 @@
 package uctMonteCarlo;
 
 import java.util.LinkedList;
+import java.util.TreeSet;
 
 import boardRep.Colour;
 import boardRep.Global;
@@ -41,7 +42,7 @@ public class MyLinkedListTreeNode extends SuperTreeNode {
 				newBoard.put(whoseTurn, child.getMove());
 				Colour winner = newBoard.randomPlayout(Global.opponent(whoseTurn));
 				child.node.update(winner);
-				child.node.amafUpdate(winner, new LinkedList<Integer>());
+				child.node.amafUpdate(winner, new TreeSet<Integer>(),new TreeSet<Integer>());
 				listNode=listNode.next;
 			}
 		}

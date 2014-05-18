@@ -2,6 +2,7 @@ package uctMonteCarlo;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.TreeSet;
 
 import boardRep.Colour;
 import boardRep.GoBoard;
@@ -14,7 +15,7 @@ public interface TreeNode extends Serializable {
 	boolean isLeaf();//returns whether the node is a leaf (does it have any children yet)
 	
 	void update(Colour winner);//updates a node and propagates the update back to the tree head
-	void amafUpdate(Colour winner, List<Integer> moves);//updates a node and propagates the update using AMAF to the head
+	void amafUpdate(Colour winner, TreeSet<Integer> whiteMoves,TreeSet<Integer> blackMoves);//updates a node and propagates the update using AMAF to the head
 	void singleUpdate(Colour winner);//updates just the node, and doesn't propagate. used in amafupdate
 	
 	Colour getWhoseTurn();
@@ -28,4 +29,5 @@ public interface TreeNode extends Serializable {
 	void childPrint();
 	int generateChildren(GoBoard goBoard, UpdateType updateType);
 	void printProfiling();
+	int getNumberOfAMAFTrials();
 }

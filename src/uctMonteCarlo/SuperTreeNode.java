@@ -3,6 +3,7 @@ package uctMonteCarlo;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 import boardRep.Colour;
 import boardRep.Global;
@@ -31,7 +32,7 @@ public class SuperTreeNode implements TreeNode, Serializable {
 	long averageUpdateTime = 0,averagePlayoutTime=0;
 	int updates=0,playouts=0;
 	
-	public int raveParam=5000;
+	public int raveParam=10000;
 	Colour whoseTurn;	
 
 	
@@ -110,8 +111,8 @@ public class SuperTreeNode implements TreeNode, Serializable {
 			long start = System.currentTimeMillis();
 			switch(updateType){
 				case BASIC: child.node.update(winner); break;
-				case AMAF: child.node.amafUpdate(winner, new LinkedList<Integer>()); break;
-				case RAVE: child.node.amafUpdate(winner, new LinkedList<Integer>());
+				case AMAF: child.node.amafUpdate(winner, new TreeSet<Integer>(),new TreeSet<Integer>()); break;
+				case RAVE: child.node.amafUpdate(winner, new TreeSet<Integer>(),new TreeSet<Integer>());
 							child.node.update(winner); break;
 			}
 			start = System.currentTimeMillis()-start;
@@ -130,7 +131,7 @@ public class SuperTreeNode implements TreeNode, Serializable {
 	
 					expectedWinsSquaredSum = ((expectedWinsSquaredSum*numberOfTrials)+expectedWins*expectedWins)/(numberOfTrials+1);
 					numberOfTrials++;
-					int n = 1;
+					int n = parent.getNumberOfTrials()-1;
 					
 					float logN = (float) Math.log(n);
 					float v =(float) (expectedWinsSquaredSum - (expectedWins*expectedWins) + Math.sqrt(logN/numberOfTrials));
@@ -168,16 +169,17 @@ public class SuperTreeNode implements TreeNode, Serializable {
 		}
 	}
 	@Override
-	public void amafUpdate(Colour winner, List<Integer> moves) {
-		if(parent!=null){ 
-			moves.add(moveMadeToGetHere);
-			parent.amafUpdate(winner,moves);	
+	public void amafUpdate(Colour winner, TreeSet<Integer> whiteMoves, TreeSet<Integer> blackMoves) {
+		if(parent!=null){
+			if(whoseTurn==Colour.WHITE)blackMoves.add(moveMadeToGetHere);
+			else whiteMoves.add(moveMadeToGetHere);
+			parent.amafUpdate(winner,whiteMoves,blackMoves);	
 			if(winner==Colour.BLACK)amafExpectedWins=((amafExpectedWins*amafNumberOfTrials)+1)/(amafNumberOfTrials+1);
 			else amafExpectedWins = (amafExpectedWins*amafNumberOfTrials)/(amafNumberOfTrials+1);
 
 			expectedWinsSquaredSum = ((amafExpectedWinsSquaredSum*amafNumberOfTrials)+amafExpectedWins*amafExpectedWins)/(amafNumberOfTrials+1);
 			amafNumberOfTrials++;
-			int n = 1;
+			int n = parent.getNumberOfAMAFTrials()-1;
 			
 			float logN = (float) Math.log(n);
 			float v =(float) (amafExpectedWinsSquaredSum - (amafExpectedWins*amafExpectedWins) + Math.sqrt(logN/amafNumberOfTrials));
@@ -187,11 +189,18 @@ public class SuperTreeNode implements TreeNode, Serializable {
 		}
 		else numberOfTrials++;
 		for(int i=0;i<children.size();i++){
-			for(int j=0;j<moves.size()-1;j++){
+			if(whoseTurn==Colour.WHITE){
 				Child child = children.get(i);
-				if(children.get(i).move==moves.get(j)){
+				if(whiteMoves.contains(child.getMove())){
 					child.getNode().singleUpdate(winner);
 				}
+			}
+			else{
+				Child child = children.get(i);
+				if(blackMoves.contains(child.getMove())){
+					child.getNode().singleUpdate(winner);
+				}
+			
 			}
 			
 		}
@@ -204,7 +213,7 @@ public class SuperTreeNode implements TreeNode, Serializable {
 
 		expectedWinsSquaredSum = ((amafExpectedWinsSquaredSum*amafNumberOfTrials)+amafExpectedWins*amafExpectedWins)/(amafNumberOfTrials+1);
 		amafNumberOfTrials++;
-		int n = 1;
+		int n = parent.getNumberOfAMAFTrials();
 		
 		float logN = (float) Math.log(n);
 		float v =(float) (amafExpectedWinsSquaredSum - (amafExpectedWins*amafExpectedWins) + Math.sqrt(logN/amafNumberOfTrials));
@@ -258,5 +267,9 @@ public class SuperTreeNode implements TreeNode, Serializable {
 	@Override
 	public void printProfiling() {
 		System.out.println("average update time - " + averageUpdateTime);
+	}
+	@Override
+	public int getNumberOfAMAFTrials() {
+		return amafNumberOfTrials;
 	}
 }

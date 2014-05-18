@@ -60,32 +60,32 @@ public class GoGo extends JFrame{
 	
 	protected JToolBar getToolBar() {
 		List<JButton> buttons = new ArrayList<JButton>();
-		JButton cvrButton = new JButton("BasVsRan");		
+		JButton cvrButton = new JButton("BvRan");		
 		new SelectPlayMode(this, PlayMode.COMPVSRANDOM, cvrButton);
 		buttons.add(cvrButton);
 		
 
-		JButton avuButton = new JButton("AmfVsBas");
+		JButton avuButton = new JButton("AvB");
 		new SelectPlayMode(this, PlayMode.AMAFVSUCT , avuButton);
 		buttons.add(avuButton);
 		
-		JButton pvcButton = new JButton("PlyrVsBas");
+		JButton pvcButton = new JButton("PvB");
 		new SelectPlayMode(this, PlayMode.PLAYERVSBASIC, pvcButton);
 		buttons.add(pvcButton);
 		
-		JButton pvbButton = new JButton("PreVSBas");
+		JButton pvbButton = new JButton("PrevB");
 		new SelectPlayMode(this, PlayMode.PRELOADEDVSBASIC,pvbButton);
 		buttons.add(pvbButton);
 		
-		JButton pvaButton = new JButton("PlyrVsAMAF");
+		JButton pvaButton = new JButton("PvA");
 		new SelectPlayMode(this, PlayMode.PLAYERVSAMAF, pvaButton);
 		buttons.add(pvaButton);
 		
-		JButton pvpButton = new JButton("PlyrVsPlyr");
+		JButton pvpButton = new JButton("PvP");
 		new SelectPlayMode(this, PlayMode.PLAYERVSPLAYER, pvpButton);
 		buttons.add(pvpButton);
 		
-		JButton evbButton = new JButton("EvalBrd");
+		JButton evbButton = new JButton("Eval");
 		new SelectPlayMode(this, PlayMode.EVALBOARD, evbButton);
 		buttons.add(evbButton);
 		
@@ -93,7 +93,7 @@ public class GoGo extends JFrame{
 		new SelectPlayMode(this, PlayMode.NOTPLAYING, stopButton);
 		buttons.add(stopButton);
 		
-		JButton rvuButton = new JButton("RavVsBas");
+		JButton rvuButton = new JButton("RvB");
 		new SelectPlayMode(this, PlayMode.RAVEVSUCT, rvuButton);
 		buttons.add(rvuButton);
 		
@@ -197,15 +197,16 @@ public class GoGo extends JFrame{
 					break;
 			case PLAYERVSBASIC:	goBoard.reset();					
 					whitePlayer = new UctPlayer(new UCTSearchBasic(treeHead, goBoard,UpdateType.BASIC), (long) 5000, 1000, Colour.WHITE);
+					whitePlayer.loadTree();
 					break;
 			case AMAFVSUCT: goBoard.reset(); 
-							blackPlayer = new UctPlayer(new UCTSearchBasic(treeHead, goBoard,UpdateType.BASIC), (long) 500, 1000, Colour.BLACK);
-							whitePlayer = new UctPlayer(new UCTSearchBasic(treeHead1, goBoard,UpdateType.AMAF), (long) 500, 1000, Colour.WHITE);
+							blackPlayer = new UctPlayer(new UCTSearchBasic(treeHead, goBoard,UpdateType.BASIC), (long) 500, 100, Colour.BLACK);
+							whitePlayer = new UctPlayer(new UCTSearchBasic(treeHead1, goBoard,UpdateType.AMAF), (long) 500, 100, Colour.WHITE);
 							compVsComp(150);
 					break;
 			case RAVEVSUCT: goBoard.reset(); 
-							blackPlayer = new UctPlayer(new UCTSearchBasic(treeHead, goBoard,UpdateType.BASIC), (long) 500, 1000, Colour.BLACK);
-							whitePlayer = new UctPlayer(new UCTSearchBasic(treeHead1, goBoard,UpdateType.RAVE), (long) 500, 1000, Colour.WHITE);
+							blackPlayer = new UctPlayer(new UCTSearchBasic(treeHead, goBoard,UpdateType.BASIC), (long) 500, 100, Colour.BLACK);
+							whitePlayer = new UctPlayer(new UCTSearchBasic(treeHead1, goBoard,UpdateType.RAVE), (long) 500, 100, Colour.WHITE);
 							compVsComp(150);
 					break;
 			case NOTPLAYING: goBoard.reset();
@@ -222,6 +223,7 @@ public class GoGo extends JFrame{
 									break;
 			case PLAYERVSAMAF: goBoard.reset();
 					whitePlayer = new UctPlayer(new UCTSearchBasic(treeHead1, goBoard,UpdateType.AMAF), (long) 5000, 900, Colour.WHITE);
+					whitePlayer.loadTree();
 					break;
 			case RANDOMPLAYOUTS: whitePlayer = new RandomPlayer(); blackPlayer = new RandomPlayer();
 					randomPlayouts();
@@ -252,16 +254,17 @@ public class GoGo extends JFrame{
 
 
 	private void compVsComp(int tGames) {
-		int games = 0,moves=0,whiteWins=0,passes=0,blackWins=0;
+		int games = 0,moves=0,whiteWins=0,wpasses=0,bpasses=0,blackWins=0;
 		while(games<tGames&&(playMode==PlayMode.AMAFVSUCT||playMode==PlayMode.RAVEVSUCT||playMode==PlayMode.PRELOADEDVSBASIC)){
 			while(moves<350&&!goBoard.isFull()){
-				int blackMove = blackPlayer.findMoveIter();
+				int blackMove = blackPlayer.findMoveTime();
+				if(blackMove==0) bpasses++;
 				if(goBoard.put(Colour.BLACK,blackMove)){	
 					//System.out.println("black - " + blackMove);
 					whitePlayer.notifyOpponentsMove(blackMove);
-					int whiteMove = whitePlayer.findMoveIter();
+					int whiteMove = whitePlayer.findMoveTime();
 					if(whiteMove==0){
-						passes++;
+						wpasses++;
 						if(blackMove==0){
 							moves=250;
 							System.out.print("game passed ");
@@ -272,6 +275,7 @@ public class GoGo extends JFrame{
 					blackPlayer.notifyOpponentsMove(whiteMove);
 				}
 				moves+=1;
+				if(moves%100==0) System.out.println("moves taken - " + moves);
 			}
 			Colour winner = goBoard.scoreBoard();
 			if(winner==Colour.WHITE)whiteWins++;
@@ -285,12 +289,14 @@ public class GoGo extends JFrame{
 				System.out.print("PRE - w BASIC - b ");
 				whitePlayer.loadTree();
 			}
+
+			System.out.println("wpasses -  " + wpasses + "bpasses - " + bpasses);
 			System.out.print("white - " +whiteWins);
 			System.out.print("   black - " +blackWins);
 			System.out.println("   games - " + games);
 			goBoard.reset();
 			moves = 0;
-			passes = 0;
+			wpasses = 0;bpasses=0;
 		}
 
 		whitePlayer.printProfiling();
